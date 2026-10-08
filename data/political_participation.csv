@@ -1,0 +1,16 @@
+age_group,education,community,voting_rate,campaign_contact,political_meeting
+18-24,College,Urban,38,44,29
+25-34,College,Urban,49,52,36
+35-44,College,Urban,56,61,42
+45-64,College,Urban,63,67,49
+65+,College,Urban,71,73,55
+18-24,No College,Rural,27,31,20
+25-34,No College,Rural,35,39,26
+35-44,No College,Rural,43,47,31
+45-64,No College,Rural,52,57,38
+65+,No College,Rural,61,64,45
+18-24,College,Rural,34,39,24
+25-34,College,Rural,45,49,32
+35-44,College,Rural,53,57,39
+45-64,College,Rural,61,65,46
+65+,College,Rural,69,71,52
