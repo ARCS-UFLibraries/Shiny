@@ -1,0 +1,4 @@
+column_name,description,data_type,required,allowed_values
+example_id,Unique identifier for each observation,integer,true,
+example_group,Group or category for the observation,categorical,false,"group_a|group_b"
+example_value,Numeric measurement to analyze,numeric,false,
