@@ -1,0 +1,25 @@
+year,region,issue,support_percent,oppose_percent
+2022,South,Climate Policy,54,46
+2022,Midwest,Climate Policy,48,52
+2022,West,Climate Policy,67,33
+2022,Northeast,Climate Policy,62,38
+2022,South,Healthcare Access,61,39
+2022,Midwest,Healthcare Access,58,42
+2022,West,Healthcare Access,69,31
+2022,Northeast,Healthcare Access,71,29
+2022,South,Voting Access,57,43
+2022,Midwest,Voting Access,54,46
+2022,West,Voting Access,64,36
+2022,Northeast,Voting Access,68,32
+2024,South,Climate Policy,57,43
+2024,Midwest,Climate Policy,51,49
+2024,West,Climate Policy,70,30
+2024,Northeast,Climate Policy,66,34
+2024,South,Healthcare Access,64,36
+2024,Midwest,Healthcare Access,61,39
+2024,West,Healthcare Access,72,28
+2024,Northeast,Healthcare Access,73,27
+2024,South,Voting Access,60,40
+2024,Midwest,Voting Access,57,43
+2024,West,Voting Access,68,32
+2024,Northeast,Voting Access,71,29

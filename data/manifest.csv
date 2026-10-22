@@ -1,0 +1,4 @@
+dataset_id,dataset_name,file,description,category,source
+elections,US Election Turnout,us_elections.csv,Explore differences in voter turnout across states and election years.,Elections,Prototype instructional dataset
+public_opinion,Public Opinion by Issue,public_opinion.csv,Compare public support for selected political issues across years and regions.,Public Opinion,Prototype instructional dataset
+participation,Political Participation,political_participation.csv,Investigate patterns in political participation across demographic groups.,Political Participation,Prototype instructional dataset
