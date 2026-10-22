@@ -1,4 +1,0 @@
-shiny>=1.5
-shinywidgets>=0.7
-pandas>=2.0
-plotly>=5.20
