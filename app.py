@@ -23,7 +23,25 @@ def load_dataset(dataset_id):
     path = DATA_DIR / str(row.iloc[0]["file"])
     if not path.exists():
         raise FileNotFoundError(f"Dataset file does not exist: {path}")
-    return pd.read_csv(path)
+
+    suffix = path.suffix.lower()
+    if suffix in (".xlsx", ".xls"):
+        df = pd.read_excel(path, engine="openpyxl")
+    else:
+        df = pd.read_csv(path)
+
+    # V-Dem: filter to 1900-2025 and drop high-cardinality integer ID column
+    if dataset_id == "democracy":
+        if "year" in df.columns:
+            df = df[(df["year"] >= 1900) & (df["year"] <= 2025)].copy()
+        if "country_id" in df.columns:
+            df = df.drop(columns=["country_id"])
+
+    # ESS: 540k rows is too large for Shiny platform -- keep a 100k sample
+    if dataset_id == "europe" and len(df) > 100_000:
+        df = df.sample(n=100_000, random_state=42).reset_index(drop=True)
+
+    return df
 
 
 def dataset_info(dataset_id):
@@ -1142,18 +1160,6 @@ def server(input, output, session):
                 fig = px.scatter(df, x=x_var, y=y_var, title=f"{y_title} vs. {x_title}")
         except Exception as exc:
             fig = px.scatter(title=f"Visualization notice: {exc}")
-
-        fig.update_layout(
-            template="plotly_white",
-            font=dict(family="'Plus Jakarta Sans', system-ui, sans-serif", color="#0a101d", size=12),
-            margin=dict(l=45, r=25, t=55, b=45),
-            paper_bgcolor="white",
-            plot_bgcolor="white",
-            hovermode="closest",
-        )
-        fig.update_xaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
-        fig.update_yaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
-        return fig
 
         fig.update_layout(
             template="plotly_white",
