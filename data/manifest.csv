@@ -2,3 +2,5 @@ dataset_id,dataset_name,file,description,category,source
 elections,Civic Participation & Voter Turnout,us_elections.csv,Explore civic engagement and voter participation patterns across states and election years.,Civic & Community Engagement,Public Social Science Learning Dataset
 public_opinion,Social & Public Opinion Trends,public_opinion.csv,Compare community perspectives on key social and environmental issues across regions.,Social Attitudes & Values,Public Social Science Learning Dataset
 participation,Community & Political Involvement,political_participation.csv,Investigate how education and community setting shape social and civic participation.,Demographics & Society,Public Social Science Learning Dataset
+democracy,Vdem,V-Dem-.xlsx,Examine democracy accross europe, Public Data,Vdem website
+europe,ess,ESS.csv,Examine  europe, Public Data,ess website
