@@ -6,3 +6,6 @@ services:
     startCommand: "python -m shiny run --host 0.0.0.0 --port $PORT app.py"
     plan: free
     autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
