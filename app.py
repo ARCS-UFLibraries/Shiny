@@ -1,7 +1,9 @@
+import functools
 from pathlib import Path
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 from shiny import App, reactive, render, ui
 from shinywidgets import output_widget, render_widget
 from analytics import profile_dataframe, validate_data_dictionary
@@ -11,59 +13,96 @@ DATA_DIR = BASE_DIR / "data"
 MANIFEST_PATH = DATA_DIR / "manifest.csv"
 
 
+@functools.lru_cache(maxsize=4)
 def load_manifest():
     return pd.read_csv(MANIFEST_PATH)
 
 
-def load_dataset(dataset_id):
+@functools.lru_cache(maxsize=16)
+def _load_csv_cached(filepath_str: str) -> pd.DataFrame:
+    return pd.read_csv(filepath_str)
+
+
+def load_dataset(dataset_id=None):
     m = load_manifest()
+    if not dataset_id or dataset_id == "None":
+        dataset_id = str(m.iloc[0]["dataset_id"])
     row = m.loc[m.dataset_id == dataset_id]
     if row.empty:
-        raise ValueError(f"Dataset '{dataset_id}' is not in the data registry.")
+        row = m.iloc[[0]]
     path = DATA_DIR / str(row.iloc[0]["file"])
     if not path.exists():
         raise FileNotFoundError(f"Dataset file does not exist: {path}")
-
-    suffix = path.suffix.lower()
-    if suffix in (".xlsx", ".xls"):
-        df = pd.read_excel(path, engine="openpyxl")
-    else:
-        df = pd.read_csv(path)
-
-    # V-Dem: filter to 1900-2025 and drop high-cardinality integer ID column
-    if dataset_id == "democracy":
-        if "year" in df.columns:
-            df = df[(df["year"] >= 1900) & (df["year"] <= 2025)].copy()
-        if "country_id" in df.columns:
-            df = df.drop(columns=["country_id"])
-
-    # ESS: 540k rows is too large for Shiny platform -- keep a 100k sample
-    if dataset_id == "europe" and len(df) > 100_000:
-        df = df.sample(n=100_000, random_state=42).reset_index(drop=True)
-
-    return df
+    return _load_csv_cached(str(path))
 
 
-def dataset_info(dataset_id):
+@functools.lru_cache(maxsize=16)
+def dataset_info(dataset_id=None):
     df_m = load_manifest()
+    if not dataset_id or dataset_id == "None":
+        return df_m.iloc[0]
     match = df_m.loc[df_m.dataset_id == dataset_id]
     if match.empty:
         return df_m.iloc[0]
     return match.iloc[0]
 
 
+def load_vdem_dictionary():
+    dict_path = DATA_DIR / "vdem_data_dictionary.csv"
+    if dict_path.exists():
+        try:
+            return pd.read_csv(dict_path)
+        except Exception:
+            return pd.DataFrame()
+    return pd.DataFrame()
+
+
+def load_ess_dictionary():
+    dict_path = DATA_DIR / "ess_data_dictionary.csv"
+    if dict_path.exists():
+        try:
+            return pd.read_csv(dict_path)
+        except Exception:
+            return pd.DataFrame()
+    return pd.DataFrame()
+
+
+VDEM_DICT_DF = load_vdem_dictionary()
+ESS_DICT_DF = load_ess_dictionary()
+
+VDEM_LABELS = dict(zip(VDEM_DICT_DF["Variable code"], VDEM_DICT_DF["Name"])) if not VDEM_DICT_DF.empty else {}
+ESS_LABELS = dict(zip(ESS_DICT_DF["Variable code"], ESS_DICT_DF["Item"])) if not ESS_DICT_DF.empty else {}
+CODEBOOK_LABELS = {**VDEM_LABELS, **ESS_LABELS}
+
+
+def get_column_label(col):
+    """Return student-friendly readable label for column, utilizing V-Dem & ESS codebook mapping."""
+    if col in CODEBOOK_LABELS:
+        return f"{CODEBOOK_LABELS[col]} ({col})"
+    return col.replace("_", " ").title()
+
+
+_COLUMN_TYPES_CACHE = {}
+
 def get_column_types(df):
-    """Categorize columns into discrete/categorical factors and continuous/numeric metrics."""
+    """Categorize columns into discrete/categorical factors and continuous/numeric metrics with caching."""
+    cols_key = tuple(df.columns)
+    if cols_key in _COLUMN_TYPES_CACHE:
+        return _COLUMN_TYPES_CACHE[cols_key]
+
     discrete = []
     numeric = []
+    time_or_id_names = {"year", "state", "region", "country", "issue", "age_group", "education", "community", "income_group"}
     for col in df.columns:
-        if df[col].dtype == "object" or (pd.api.types.is_numeric_dtype(df[col]) and df[col].nunique() <= 10):
+        s = df[col]
+        if s.dtype == "object" or col in time_or_id_names or (pd.api.types.is_numeric_dtype(s) and s.nunique() <= 30):
             discrete.append(col)
-        elif pd.api.types.is_numeric_dtype(df[col]):
+        elif pd.api.types.is_numeric_dtype(s):
             numeric.append(col)
-    # If all numeric columns have <= 10 unique values, allow them as metrics as well
     if not numeric:
-        numeric = df.select_dtypes(include="number").columns.tolist()
+        numeric = [c for c in df.select_dtypes(include="number").columns.tolist() if c not in discrete] or df.select_dtypes(include="number").columns.tolist()
+    
+    _COLUMN_TYPES_CACHE[cols_key] = (discrete, numeric)
     return discrete, numeric
 
 
@@ -71,11 +110,39 @@ def build_filter_inputs(df, prefix="filter_"):
     controls = []
     discrete_cols, numeric_cols = get_column_types(df)
     
-    # 1. Discrete / Category Multi-select dropdowns
+    # Year slider first if present
+    if "year" in df.columns:
+        valid_yrs = df["year"].dropna()
+        if not valid_yrs.empty:
+            y_min, y_max = int(valid_yrs.min()), int(valid_yrs.max())
+            if y_min != y_max:
+                controls.append(
+                    ui.div(
+                        ui.tags.label("Time Period (Years 1900–2025)", class_="sidebar-label"),
+                        ui.input_slider(
+                            f"{prefix}range_year",
+                            None,
+                            min=y_min,
+                            max=y_max,
+                            value=(max(y_min, 1950), y_max),
+                            step=1,
+                            sep="",
+                        ),
+                        class_="filter-item",
+                    )
+                )
+
+    # 1. Discrete / Category Multi-select dropdowns (allowing up to 220 countries)
     for col in discrete_cols[:6]:
-        vals = sorted(df[col].dropna().astype(str).unique())
-        if 1 < len(vals) <= 50:
-            clean_name = col.replace("_", " ").title()
+        if col == "year":
+            continue
+        col_s = df[col].dropna()
+        if col_s.dtype == "object":
+            vals = sorted(col_s.unique())
+        else:
+            vals = sorted(col_s.astype(str).unique())
+        if 1 < len(vals) <= 220:
+            clean_name = get_column_label(col)
             controls.append(
                 ui.div(
                     ui.tags.label(f"{clean_name}", class_="sidebar-label"),
@@ -84,20 +151,22 @@ def build_filter_inputs(df, prefix="filter_"):
                         None,
                         choices=vals,
                         multiple=True,
-                        options={"placeholder": f"All {clean_name.lower()}s included..."},
+                        options={"placeholder": f"All {clean_name.lower()} included..."},
                     ),
                     class_="filter-item",
                 )
             )
 
     # 2. Continuous Numeric Sliders
-    for col in numeric_cols[:3]:
+    for col in numeric_cols[:4]:
+        if col == "year":
+            continue
         valid = df[col].dropna()
         if not valid.empty:
             lo, hi = float(valid.min()), float(valid.max())
             if lo != hi:
-                clean_name = col.replace("_", " ").title()
-                step_val = 1 if (hi - lo) > 10 else 0.5
+                clean_name = get_column_label(col)
+                step_val = 1 if (hi - lo) > 10 else 0.05
                 controls.append(
                     ui.div(
                         ui.tags.label(f"{clean_name} Range", class_="sidebar-label"),
@@ -346,6 +415,9 @@ body {
 .uf-kpi-card.orange {
   border-left-color: var(--uf-orange);
 }
+.uf-kpi-card.teal {
+  border-left-color: #007A78;
+}
 .uf-kpi-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-card);
@@ -360,6 +432,9 @@ body {
 .uf-kpi-card.orange .uf-kpi-val {
   color: var(--uf-orange-dark);
 }
+.uf-kpi-card.teal .uf-kpi-val {
+  color: #007A78;
+}
 .uf-kpi-lbl {
   font-size: 11px;
   font-weight: 700;
@@ -367,6 +442,29 @@ body {
   letter-spacing: 0.06em;
   color: var(--ink-muted);
   margin-top: 6px;
+}
+
+/* Simulation / Alter Box */
+.uf-sim-box {
+  background: #fff8f5;
+  border: 1px solid #ffedd5;
+  border-left: 4px solid var(--uf-orange);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.uf-sim-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--uf-orange-dark);
+  margin-bottom: 6px;
+  display: block;
+}
+.uf-sim-desc {
+  font-size: 12.5px;
+  color: #7c2d12;
+  margin-bottom: 12px;
+  line-height: 1.45;
 }
 
 /* Card Panels */
@@ -625,7 +723,19 @@ app_ui = ui.page_fluid(
                     ui.layout_sidebar(
                         ui.sidebar(
                             ui.div("Topic Registry", class_="sidebar-badge"),
-                            ui.input_select("dataset", "Dataset to Explore", choices={}),
+                            ui.input_select(
+                                "dataset",
+                                "Dataset to Explore",
+                                choices={
+                                    "vdem_democracy": "Varieties of Democracy (V-Dem) Global Lab (1900-2025)",
+                                    "elections": "Civic Participation & Voter Turnout",
+                                    "public_opinion": "Social Attitudes & Public Opinion Trends",
+                                    "participation": "Education, Urbanization & Civic Action",
+                                    "social_trust_ess": "Social Trust & Democratic Satisfaction (ESS)",
+                                    "global_inequality": "Global Development, Inequality & Civic Well-being",
+                                },
+                                selected="vdem_democracy",
+                            ),
                             ui.output_ui("dataset_description"),
                             ui.hr(style="margin: 16px 0; border-color: var(--border-subtle);"),
                             ui.div("Dataset Filters", class_="sidebar-badge"),
@@ -638,7 +748,7 @@ app_ui = ui.page_fluid(
                         # KPI Deck
                         ui.div(
                             ui.div(
-                                ui.div(ui.output_text("dataset_kpi"), class_="uf-kpi-val", style="font-size: 18px;"),
+                                ui.div(ui.output_text("dataset_kpi"), class_="uf-kpi-val", style="font-size: 16px;"),
                                 ui.div("Selected Topic", class_="uf-kpi-lbl"),
                                 class_="uf-kpi-card",
                             ),
@@ -652,7 +762,42 @@ app_ui = ui.page_fluid(
                                 ui.div("Primary Measure Average", class_="uf-kpi-lbl"),
                                 class_="uf-kpi-card orange",
                             ),
+                            ui.div(
+                                ui.div(ui.output_text("sim_delta_kpi"), class_="uf-kpi-val"),
+                                ui.div("What-If Simulated Avg", class_="uf-kpi-lbl"),
+                                class_="uf-kpi-card teal",
+                            ),
                             class_="uf-kpi-deck",
+                        ),
+                        # What-if Alter Values Simulation Sandbox
+                        ui.div(
+                            ui.span("🧪 Interactive 'What-If?' Scenario Sandbox: Alter Values & Play Around", class_="uf-sim-title"),
+                            ui.p(
+                                "Social science is about exploring counterfactuals: What if voter turnout increased by 15%? What if trust improved? What if corruption was halved? Adjust the slider below to alter values in real time and see the chart update.",
+                                class_="uf-sim-desc",
+                            ),
+                            ui.layout_columns(
+                                ui.input_slider(
+                                    "sim_shift_pct",
+                                    "Alter Selected Metric (% Shift):",
+                                    min=-50,
+                                    max=50,
+                                    value=0,
+                                    step=5,
+                                ),
+                                ui.input_select(
+                                    "sim_mode",
+                                    "Visual Overlay Mode:",
+                                    choices={
+                                        "both": "Compare Original vs. Altered (Side-by-side)",
+                                        "altered": "Display Altered Simulated Values Only",
+                                        "original": "Display Original Values Only",
+                                    },
+                                    selected="both",
+                                ),
+                                col_widths=(7, 5),
+                            ),
+                            class_="uf-sim-box",
                         ),
                         # Main Visualization Card
                         ui.div(
@@ -665,11 +810,12 @@ app_ui = ui.page_fluid(
                                     "chart_type",
                                     None,
                                     choices={
-                                        "bar": "Bar Chart (Group Comparisons)",
+                                        "bar": "Bar Chart (Group Comparisons & Alterations)",
                                         "line": "Line Chart (Trend / Sequence)",
                                         "scatter": "Scatter Plot (Bivariate Correlation)",
                                         "hist": "Distribution (Histogram)",
                                         "box": "Box Plot (Quartiles & Outliers)",
+                                        "heatmap": "Correlation Heatmap Matrix (All Metrics)",
                                     },
                                     selected="bar",
                                 ),
@@ -719,11 +865,18 @@ app_ui = ui.page_fluid(
                             ),
                             ui.tags.div(
                                 ui.tags.a(
-                                    "Download Dictionary Template (CSV)",
+                                    "📥 Download Student Practice Dataset (CSV)",
+                                    href="/student_practice_social_science.csv",
+                                    download="student_practice_social_science.csv",
+                                    class_="btn-uf-outline",
+                                    style="display: inline-block; text-decoration: none; margin-bottom: 8px; margin-right: 8px; font-size: 12px;",
+                                ),
+                                ui.tags.a(
+                                    "📄 Download Dictionary Template (CSV)",
                                     href="/data_dictionary_template.csv",
                                     download="data_dictionary_template.csv",
                                     class_="btn-uf-outline",
-                                    style="display: inline-block; text-decoration: none; margin-bottom: 12px; font-size: 12px;",
+                                    style="display: inline-block; text-decoration: none; margin-bottom: 8px; font-size: 12px;",
                                 ),
                             ),
                             ui.output_ui("upload_status"),
@@ -745,6 +898,36 @@ app_ui = ui.page_fluid(
                             width="310px",
                         ),
                         ui.div(
+                            # Upload What-if Sandbox
+                            ui.div(
+                                ui.span("🧪 Interactive What-If Alteration on Uploaded Data", class_="uf-sim-title"),
+                                ui.p(
+                                    "Experiment with counterfactual adjustments on your own data. Shift values by a percentage and compare original vs. adjusted distributions.",
+                                    class_="uf-sim-desc",
+                                ),
+                                ui.layout_columns(
+                                    ui.input_slider(
+                                        "upload_sim_shift_pct",
+                                        "Alter Uploaded Metric (% Shift):",
+                                        min=-50,
+                                        max=50,
+                                        value=0,
+                                        step=5,
+                                    ),
+                                    ui.input_select(
+                                        "upload_sim_mode",
+                                        "Visual Comparison:",
+                                        choices={
+                                            "both": "Compare Original vs. Altered",
+                                            "altered": "Altered Values Only",
+                                            "original": "Original Values Only",
+                                        },
+                                        selected="both",
+                                    ),
+                                    col_widths=(7, 5),
+                                ),
+                                class_="uf-sim-box",
+                            ),
                             ui.div(
                                 ui.div(
                                     ui.h2("Custom Dataset Visualization", class_="uf-card-title"),
@@ -784,44 +967,7 @@ app_ui = ui.page_fluid(
                     ),
                 ),
             ),
-            # TAB 3: PREDICTIVE MODELING
-            ui.nav_panel(
-                "Predictive Modeling",
-                ui.div(
-                    ui.div(
-                        ui.div(
-                            ui.span("Baseline Intelligence", class_="uf-hero-tag"),
-                            ui.h1("Predictive Modeling Pipeline"),
-                            ui.p(
-                                "Train transparent Random Forest models on your uploaded data using held-out test splits and preprocessing pipelines."
-                            ),
-                        ),
-                        class_="uf-hero",
-                    ),
-                    ui.div(
-                        ui.h2("Model Setup & Evaluation", class_="uf-card-title"),
-                        ui.p("Upload a dataset in the previous tab, choose the response target column, and fit the model.", class_="uf-card-sub"),
-                        ui.layout_columns(
-                            ui.input_select("ml_target", "Target Column (Response Variable)", choices={}),
-                            ui.input_select(
-                                "ml_task",
-                                "Task Type",
-                                choices={"classification": "Classification (Categorical Target)", "regression": "Regression (Continuous Target)"},
-                                selected="classification",
-                            ),
-                            ui.div(
-                                ui.tags.label("Execute", class_="sidebar-label"),
-                                ui.input_action_button("run_ml", "Train Baseline Model", class_="btn-uf-primary", width="100%"),
-                            ),
-                            col_widths=(5, 4, 3),
-                        ),
-                        ui.div(ui.output_ui("ml_status"), style="margin-top: 16px;"),
-                        ui.div(ui.output_data_frame("ml_metrics"), style="margin-top: 16px;"),
-                        class_="uf-card",
-                    ),
-                ),
-            ),
-            # TAB 4: REGISTRY & METHODOLOGY
+            # TAB 3: REGISTRY & METHODOLOGY
             ui.nav_panel(
                 "Registry & Methodology",
                 ui.div(
@@ -834,6 +980,42 @@ app_ui = ui.page_fluid(
                             ),
                         ),
                         class_="uf-hero",
+                    ),
+                    ui.div(
+                        ui.div(
+                            ui.div(
+                                ui.h2("European Social Survey (ESS) Data Dictionary (Rounds 1–11)", class_="uf-card-title"),
+                                ui.p("Official ESS variable codebook: political trust, democratic satisfaction, EU attitudes, immigration perceptions, values, and participation items.", class_="uf-card-sub"),
+                            ),
+                            ui.tags.a(
+                                "📥 Download ESS Data Dictionary (CSV)",
+                                href="/ess_data_dictionary.csv",
+                                download="ess_data_dictionary.csv",
+                                class_="btn-uf-outline",
+                                style="text-decoration: none; font-size: 13px;",
+                            ),
+                            class_="uf-card-header",
+                        ),
+                        ui.output_data_frame("ess_dict_table"),
+                        class_="uf-card",
+                    ),
+                    ui.div(
+                        ui.div(
+                            ui.div(
+                                ui.h2("V-Dem Global Democracy Data Dictionary (1900–2025)", class_="uf-card-title"),
+                                ui.p("Comprehensive codebook metadata: index hierarchy levels, scale direction, and pedagogical teaching notes.", class_="uf-card-sub"),
+                            ),
+                            ui.tags.a(
+                                "📥 Download V-Dem Data Dictionary (CSV)",
+                                href="/vdem_data_dictionary.csv",
+                                download="vdem_data_dictionary.csv",
+                                class_="btn-uf-outline",
+                                style="text-decoration: none; font-size: 13px;",
+                            ),
+                            class_="uf-card-header",
+                        ),
+                        ui.output_data_frame("vdem_dict_table"),
+                        class_="uf-card",
                     ),
                     ui.div(
                         ui.h2("Curated Data Registry", class_="uf-card-title"),
@@ -886,7 +1068,11 @@ def server(input, output, session):
 
     @reactive.calc
     def raw_data():
-        return load_dataset(input.dataset())
+        try:
+            ds_id = input.dataset()
+        except Exception:
+            ds_id = None
+        return load_dataset(ds_id)
 
     @reactive.effect
     @reactive.event(input.reset)
@@ -910,7 +1096,7 @@ def server(input, output, session):
 
     @reactive.calc
     def filtered_data():
-        df = raw_data().copy()
+        df = raw_data()
         discrete_cols, numeric_cols = get_column_types(df)
         
         # Apply categorical/discrete filters
@@ -920,7 +1106,10 @@ def server(input, output, session):
             except Exception:
                 selected = None
             if selected:
-                df = df[df[col].astype(str).isin(selected)]
+                if df[col].dtype == "object":
+                    df = df[df[col].isin(selected)]
+                else:
+                    df = df[df[col].astype(str).isin(selected)]
                 
         # Apply numeric range sliders
         for col in numeric_cols:
@@ -936,7 +1125,11 @@ def server(input, output, session):
     @output
     @render.ui
     def dataset_description():
-        r = dataset_info(input.dataset())
+        try:
+            ds_id = input.dataset()
+        except Exception:
+            ds_id = None
+        r = dataset_info(ds_id)
         return ui.div(
             ui.p(r.description, class_="text-muted small", style="margin-top: 8px; line-height: 1.5;"),
             ui.p(ui.strong("Category: "), str(r.get("category", "Social Science")), class_="text-muted small"),
@@ -956,7 +1149,11 @@ def server(input, output, session):
     @output
     @render.text
     def dataset_kpi():
-        return str(dataset_info(input.dataset()).dataset_name)
+        try:
+            ds_id = input.dataset()
+        except Exception:
+            ds_id = None
+        return str(dataset_info(ds_id).dataset_name)
 
     @output
     @render.text
@@ -968,19 +1165,53 @@ def server(input, output, session):
         col = nums[0]
         avg = df[col].mean()
         label = col.replace("_", " ").title()
-        return f"{avg:.1f}% ({label})" if "percent" in col or "rate" in col else f"{avg:.2f} ({label})"
+        return f"{avg:.1f}% ({label})" if "percent" in col or "rate" in col or "pct" in col else f"{avg:.2f} ({label})"
+
+    @output
+    @render.text
+    def sim_delta_kpi():
+        df = filtered_data()
+        nums = df.select_dtypes(include="number").columns.tolist()
+        if not nums or df.empty:
+            return "N/A"
+        try:
+            shift = float(input.sim_shift_pct())
+        except Exception:
+            shift = 0.0
+        y_var = input.y_col() if hasattr(input, "y_col") and input.y_col() in nums else nums[0]
+        base_avg = df[y_var].mean()
+        shifted_avg = base_avg * (1.0 + shift / 100.0)
+        sign = "+" if shift > 0 else ""
+        return f"{shifted_avg:.2f} ({sign}{int(shift)}% shift)"
 
     @output
     @render.ui
     def pedagogical_prompt():
-        ds = input.dataset()
-        if ds == "elections":
+        try:
+            ds = input.dataset()
+        except Exception:
+            ds = "vdem_democracy"
+        if not ds:
+            ds = "vdem_democracy"
+        if ds == "vdem_democracy":
             return ui.p(
-                "Observe how participation rates vary across election years and states. Notice how differences in mail ballot availability correlate with overall voter turnout."
+                "Examine how Liberal Democracy and Rule of Law correlate across European nations. Notice how high Freedom of Expression is consistently linked with minimal corruption. What institutional checks prevent democratic backsliding?"
+            )
+        elif ds == "social_trust_ess":
+            return ui.p(
+                "Observe the strong correlation between Interpersonal Social Trust and Satisfaction with Democracy. In societies where citizens trust each other more, democratic institutions tend to function with higher legitimacy. How does political trust in parliament interact with immigrant acceptance?"
+            )
+        elif ds == "global_inequality":
+            return ui.p(
+                "Compare how Gini Inequality interacts with Civic Well-being and Life Expectancy across global regions. Notice that beyond a certain GDP threshold, inequality and social trust become far stronger drivers of quality of life than pure wealth."
+            )
+        elif ds == "elections":
+            return ui.p(
+                "Observe how participation rates vary across election years and states. Notice how differences in mail ballot availability correlate with overall voter turnout. Use the 'What-If' slider to simulate what national turnout would look like if young voter participation increased by 20%."
             )
         elif ds == "public_opinion":
             return ui.p(
-                "Examine the regional distribution across policy attitudes. Consider what cultural, demographic, and economic factors shape public opinion in different geographic regions."
+                "Examine the regional distribution across policy attitudes. Consider what cultural, demographic, and economic factors shape public opinion differences between regions like the West vs. Midwest."
             )
         elif ds == "participation":
             return ui.p(
@@ -997,38 +1228,56 @@ def server(input, output, session):
         discrete_cols, numeric_cols = get_column_types(df)
         chart = input.chart_type()
 
-        num_choices = {c: c.replace("_", " ").title() for c in numeric_cols}
-        disc_choices = {c: c.replace("_", " ").title() for c in discrete_cols}
+        num_choices = {c: get_column_label(c) for c in numeric_cols}
+        disc_choices = {c: get_column_label(c) for c in discrete_cols}
 
-        if chart == "scatter":
-            x_default = numeric_cols[0] if numeric_cols else df.columns[0]
-            y_default = numeric_cols[1] if len(numeric_cols) > 1 else x_default
+        if chart == "heatmap":
+            if len(numeric_cols) < 2:
+                return ui.p("Heatmap requires at least two numeric variables.", class_="text-muted small")
+            # Default to primary democracy indices
+            core_defs = [c for c in ["v2x_polyarchy", "v2x_libdem", "v2x_rule", "v2x_freexp_altinf", "v2x_corr", "v2x_gender", "v2cacamps"] if c in numeric_cols]
+            selected_heatmap = core_defs if len(core_defs) >= 2 else numeric_cols[:min(8, len(numeric_cols))]
             return ui.div(
-                ui.input_select("x_col", "X-Axis Variable", choices=num_choices or disc_choices, selected=x_default),
-                ui.input_select("y_col", "Y-Axis Variable", choices=num_choices or disc_choices, selected=y_default),
-                ui.input_select("color_col", "Color Grouping", choices={"(None)": "None (UF Blue)"} | disc_choices, selected="(None)"),
+                ui.input_selectize(
+                    "heatmap_cols",
+                    "Select Variables for Matrix",
+                    choices=num_choices,
+                    selected=selected_heatmap,
+                    multiple=True,
+                ),
+                class_="uf-toolbar",
+            )
+        if chart == "scatter":
+            x_default = "v2x_polyarchy" if "v2x_polyarchy" in numeric_cols else (numeric_cols[0] if numeric_cols else df.columns[0])
+            y_default = "v2x_libdem" if "v2x_libdem" in numeric_cols else (numeric_cols[1] if len(numeric_cols) > 1 else x_default)
+            return ui.div(
+                ui.input_select("x_col", "X-Axis Variable (Independent)", choices=num_choices or disc_choices, selected=x_default),
+                ui.input_select("y_col", "Y-Axis Variable (Dependent)", choices=num_choices or disc_choices, selected=y_default),
+                ui.input_select("color_col", "Color Grouping", choices={"(None)": "None (UF Blue)"} | disc_choices, selected="country_name" if "country_name" in disc_choices else "(None)"),
                 class_="uf-toolbar",
             )
         if chart in ("bar", "line"):
-            x_default = discrete_cols[0] if discrete_cols else df.columns[0]
-            y_default = numeric_cols[0] if numeric_cols else df.columns[-1]
+            x_default = "country_name" if "country_name" in discrete_cols else (discrete_cols[0] if discrete_cols else df.columns[0])
+            if chart == "line" and "year" in discrete_cols:
+                x_default = "year"
+            y_default = "v2x_polyarchy" if "v2x_polyarchy" in numeric_cols else (numeric_cols[0] if numeric_cols else df.columns[-1])
             sub_cats = {"(None)": "None"} | {c: disc_choices[c] for c in discrete_cols if c != x_default}
             return ui.div(
-                ui.input_select("x_col", "Category Dimension", choices=disc_choices or num_choices, selected=x_default),
+                ui.input_select("x_col", "Category / Sequence Dimension", choices=disc_choices or num_choices, selected=x_default),
                 ui.input_select("y_col", "Numeric Measure (Mean)", choices=num_choices or disc_choices, selected=y_default),
-                ui.input_select("color_col", "Sub-Group (Color)", choices=sub_cats, selected="(None)"),
+                ui.input_select("color_col", "Sub-Group (Color)", choices=sub_cats, selected="country_name" if ("country_name" in sub_cats and x_default == "year") else "(None)"),
                 class_="uf-toolbar",
             )
         if chart == "hist":
-            x_default = numeric_cols[0] if numeric_cols else df.columns[0]
+            x_default = "v2x_libdem" if "v2x_libdem" in numeric_cols else (numeric_cols[0] if numeric_cols else df.columns[0])
             return ui.div(
                 ui.input_select("x_col", "Distribution Variable", choices=num_choices or disc_choices, selected=x_default),
                 ui.input_select("color_col", "Stratify by Group", choices={"(None)": "None"} | disc_choices, selected="(None)"),
                 class_="uf-toolbar",
             )
         if chart == "box":
-            y_default = numeric_cols[0] if numeric_cols else df.columns[0]
-            x_default = discrete_cols[0] if discrete_cols else "(None)"
+            y_default = "v2x_polyarchy" if "v2x_polyarchy" in numeric_cols else (numeric_cols[0] if numeric_cols else df.columns[0])
+            x_default = "country_name" if "country_name" in discrete_cols else ("(None)" if not discrete_cols else discrete_cols[0])
             return ui.div(
                 ui.input_select("y_col", "Continuous Variable", choices=num_choices or disc_choices, selected=y_default),
                 ui.input_select("x_col", "Group Category", choices={"(None)": "Aggregate (All)"} | disc_choices, selected=x_default),
@@ -1055,106 +1304,183 @@ def server(input, output, session):
             return fig
 
         try:
-            x_var = input.x_col() if hasattr(input, "x_col") else None
-            y_var = input.y_col() if hasattr(input, "y_col") else None
+            shift = float(input.sim_shift_pct())
+        except Exception:
+            shift = 0.0
+        try:
+            sim_mode = input.sim_mode()
+        except Exception:
+            sim_mode = "both"
+
+        try:
+            if chart == "heatmap":
+                cols = input.heatmap_cols() if hasattr(input, "heatmap_cols") and input.heatmap_cols() else numeric_cols[:min(8, len(numeric_cols))]
+                valid_cols = [c for c in cols if c in numeric_cols]
+                if len(valid_cols) < 2:
+                    valid_cols = numeric_cols[:min(8, len(numeric_cols))]
+                corr = df[valid_cols].corr(numeric_only=True)
+                labels = [c.replace("_", " ").title() for c in valid_cols]
+                fig = px.imshow(
+                    corr,
+                    x=labels,
+                    y=labels,
+                    text_auto=".2f",
+                    aspect="auto",
+                    color_continuous_scale="RdBu_r",
+                    zmin=-1,
+                    zmax=1,
+                    title="Inter-Variable Correlation Matrix (Pearson r)",
+                )
+                fig.update_layout(
+                    template="plotly_white",
+                    font=dict(family="'Plus Jakarta Sans', system-ui, sans-serif", color="#0a101d", size=12),
+                    margin=dict(l=45, r=25, t=55, b=45),
+                    paper_bgcolor="white",
+                    plot_bgcolor="white",
+                )
+                return fig
+
+            x_var = input.x_col() if hasattr(input, "x_col") and input.x_col() in df.columns else (discrete_cols[0] if discrete_cols else df.columns[0])
+            y_var = input.y_col() if hasattr(input, "y_col") and input.y_col() in df.columns else (numeric_cols[0] if numeric_cols else df.columns[-1])
             color_var = input.color_col() if hasattr(input, "color_col") else None
             color = color_var if (color_var and color_var != "(None)" and color_var in df.columns) else None
-
-            # Fallback if selected input doesn't exist in current df
-            if not x_var or x_var not in df.columns:
-                x_var = discrete_cols[0] if discrete_cols else df.columns[0]
-            if not y_var or y_var not in df.columns:
-                y_var = numeric_cols[0] if numeric_cols else df.columns[-1]
 
             x_title = str(x_var).replace("_", " ").title()
             y_title = str(y_var).replace("_", " ").title()
 
             if chart == "scatter":
+                df_plot = df.copy()
+                if shift != 0 and pd.api.types.is_numeric_dtype(df_plot[y_var]):
+                    df_plot["Altered " + y_title] = df_plot[y_var] * (1.0 + shift / 100.0)
+                    plot_y = "Altered " + y_title if sim_mode == "altered" else y_var
+                else:
+                    plot_y = y_var
+
+                render_mode = "webgl" if len(df_plot) > 1000 else "auto"
                 fig = px.scatter(
-                    df,
+                    df_plot,
                     x=x_var,
-                    y=y_var,
+                    y=plot_y,
                     color=color,
                     color_discrete_sequence=UF_PALETTE,
                     trendline="ols" if (has_statsmodels and len(df) > 3 and not color) else None,
-                    hover_data=df.columns.tolist()[:5],
-                    labels={x_var: x_title, y_var: y_title},
-                    title=f"{y_title} vs. {x_title}",
+                    hover_data=df.columns.tolist()[:6],
+                    render_mode=render_mode,
+                    labels={x_var: x_title, str(plot_y): str(plot_y).replace("_", " ").title()},
+                    title=f"{str(plot_y).replace('_', ' ').title()} vs. {x_title}" + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
             elif chart in ("bar", "line"):
-                # Clean aggregation ensuring numeric y
                 df_clean = df.copy()
                 df_clean[y_var] = pd.to_numeric(df_clean[y_var], errors="coerce")
                 df_clean = df_clean.dropna(subset=[y_var])
-                
-                if color:
-                    grouped = df_clean.groupby([x_var, color], as_index=False)[y_var].mean()
-                    if chart == "bar":
-                        fig = px.bar(
-                            grouped,
-                            x=x_var,
-                            y=y_var,
-                            color=color,
-                            barmode="group",
-                            color_discrete_sequence=UF_PALETTE,
-                            labels={x_var: x_title, y_var: y_title, color: str(color).replace("_", " ").title()},
-                            title=f"Mean {y_title} by {x_title} (Stratified by {str(color).replace('_', ' ').title()})",
-                        )
-                    else:
-                        fig = px.line(
-                            grouped,
-                            x=x_var,
-                            y=y_var,
-                            color=color,
-                            markers=True,
-                            color_discrete_sequence=UF_PALETTE,
-                            labels={x_var: x_title, y_var: y_title, color: str(color).replace("_", " ").title()},
-                            title=f"Trend of {y_title} across {x_title} (Stratified by {str(color).replace('_', ' ').title()})",
-                        )
+
+                if shift != 0 and sim_mode == "both":
+                    # Side-by-side comparison of Original vs Altered
+                    grouped_orig = df_clean.groupby(x_var, as_index=False)[y_var].mean().head(25)
+                    fig = go.Figure()
+                    fig.add_trace(go.Bar(
+                        x=grouped_orig[x_var].astype(str),
+                        y=grouped_orig[y_var],
+                        name="Original Observed",
+                        marker_color="#0021A5",
+                    ))
+                    fig.add_trace(go.Bar(
+                        x=grouped_orig[x_var].astype(str),
+                        y=grouped_orig[y_var] * (1.0 + shift / 100.0),
+                        name=f"What-If Altered ({shift:+.0f}%)",
+                        marker_color="#FA4616",
+                    ))
+                    fig.update_layout(
+                        barmode="group",
+                        title=f"Original vs. What-If Altered Mean {y_title} across {x_title}",
+                        xaxis_title=x_title,
+                        yaxis_title=f"Mean {y_title}",
+                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                    )
                 else:
-                    grouped = df_clean.groupby(x_var, as_index=False)[y_var].mean()
-                    if chart == "bar":
-                        fig = px.bar(
-                            grouped,
-                            x=x_var,
-                            y=y_var,
-                            color=x_var,
-                            color_discrete_sequence=UF_PALETTE,
-                            labels={x_var: x_title, y_var: y_title},
-                            title=f"Mean {y_title} across {x_title}",
-                        )
+                    multiplier = (1.0 + shift / 100.0) if (shift != 0 and sim_mode == "altered") else 1.0
+                    df_clean["plot_metric"] = df_clean[y_var] * multiplier
+
+                    if color:
+                        grouped = df_clean.groupby([x_var, color], as_index=False)["plot_metric"].mean()
+                        if chart == "bar":
+                            fig = px.bar(
+                                grouped,
+                                x=x_var,
+                                y="plot_metric",
+                                color=color,
+                                barmode="group",
+                                color_discrete_sequence=UF_PALETTE,
+                                labels={x_var: x_title, "plot_metric": y_title, color: str(color).replace("_", " ").title()},
+                                title=f"Mean {y_title} by {x_title} (Stratified by {str(color).replace('_', ' ').title()})" + (f" [Simulated {shift:+.0f}%]" if multiplier != 1.0 else ""),
+                            )
+                        else:
+                            fig = px.line(
+                                grouped,
+                                x=x_var,
+                                y="plot_metric",
+                                color=color,
+                                markers=True,
+                                color_discrete_sequence=UF_PALETTE,
+                                labels={x_var: x_title, "plot_metric": y_title, color: str(color).replace("_", " ").title()},
+                                title=f"Trend of {y_title} across {x_title} (Stratified by {str(color).replace('_', ' ').title()})" + (f" [Simulated {shift:+.0f}%]" if multiplier != 1.0 else ""),
+                            )
                     else:
-                        fig = px.line(
-                            grouped,
-                            x=x_var,
-                            y=y_var,
-                            markers=True,
-                            color_discrete_sequence=UF_PALETTE,
-                            labels={x_var: x_title, y_var: y_title},
-                            title=f"Mean {y_title} across {x_title}",
-                        )
+                        grouped = df_clean.groupby(x_var, as_index=False)["plot_metric"].mean().head(30)
+                        if chart == "bar":
+                            fig = px.bar(
+                                grouped,
+                                x=x_var,
+                                y="plot_metric",
+                                color=x_var,
+                                color_discrete_sequence=UF_PALETTE,
+                                labels={x_var: x_title, "plot_metric": y_title},
+                                title=f"Mean {y_title} across {x_title}" + (f" [Simulated {shift:+.0f}%]" if multiplier != 1.0 else ""),
+                            )
+                        else:
+                            fig = px.line(
+                                grouped,
+                                x=x_var,
+                                y="plot_metric",
+                                markers=True,
+                                color_discrete_sequence=UF_PALETTE,
+                                labels={x_var: x_title, "plot_metric": y_title},
+                                title=f"Mean {y_title} across {x_title}" + (f" [Simulated {shift:+.0f}%]" if multiplier != 1.0 else ""),
+                            )
             elif chart == "hist":
+                df_hist = df.copy()
+                if shift != 0 and pd.api.types.is_numeric_dtype(df_hist[x_var]):
+                    df_hist["plot_x"] = df_hist[x_var] * (1.0 + shift / 100.0) if sim_mode == "altered" else df_hist[x_var]
+                    x_use = "plot_x"
+                else:
+                    x_use = x_var
                 fig = px.histogram(
-                    df,
-                    x=x_var,
+                    df_hist,
+                    x=x_use,
                     color=color,
                     marginal="box",
                     barmode="overlay" if color else "relative",
                     color_discrete_sequence=UF_PALETTE,
-                    labels={x_var: x_title},
-                    title=f"Distribution of {x_title}",
+                    labels={x_use: x_title},
+                    title=f"Distribution of {x_title}" + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
             elif chart == "box":
                 x_grp = x_var if (x_var and x_var != "(None)" and x_var in df.columns) else None
+                df_box = df.copy()
+                if shift != 0 and pd.api.types.is_numeric_dtype(df_box[y_var]):
+                    df_box["plot_y"] = df_box[y_var] * (1.0 + shift / 100.0) if sim_mode == "altered" else df_box[y_var]
+                    y_use = "plot_y"
+                else:
+                    y_use = y_var
                 fig = px.box(
-                    df,
+                    df_box,
                     x=x_grp,
-                    y=y_var,
+                    y=y_use,
                     points="all",
                     color=x_grp,
                     color_discrete_sequence=UF_PALETTE,
-                    labels={y_var: y_title, x_grp: str(x_grp).replace("_", " ").title()} if x_grp else {y_var: y_title},
-                    title=f"Distribution of {y_title}" + (f" by {str(x_grp).replace('_', ' ').title()}" if x_grp else ""),
+                    labels={y_use: y_title, x_grp: str(x_grp).replace("_", " ").title()} if x_grp else {y_use: y_title},
+                    title=f"Distribution of {y_title}" + (f" by {str(x_grp).replace('_', ' ').title()}" if x_grp else "") + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
             else:
                 fig = px.scatter(df, x=x_var, y=y_var, title=f"{y_title} vs. {x_title}")
@@ -1176,12 +1502,32 @@ def server(input, output, session):
     @output
     @render.data_frame
     def table():
-        return render.DataGrid(filtered_data().head(500), filters=True, height="380px", width="100%")
+        df = filtered_data().copy()
+        try:
+            shift = float(input.sim_shift_pct())
+        except Exception:
+            shift = 0.0
+        if shift != 0:
+            nums = df.select_dtypes(include="number").columns.tolist()
+            y_col = input.y_col() if hasattr(input, "y_col") and input.y_col() in nums else (nums[0] if nums else None)
+            if y_col:
+                df["altered_" + y_col] = (df[y_col] * (1.0 + shift / 100.0)).round(3)
+        return render.DataGrid(df.head(500), filters=True, height="380px", width="100%")
 
     @output
     @render.data_frame
     def manifest_table():
         return render.DataGrid(manifest(), filters=False, height="240px", width="100%")
+
+    @output
+    @render.data_frame
+    def ess_dict_table():
+        return render.DataGrid(ESS_DICT_DF, filters=True, height="360px", width="100%")
+
+    @output
+    @render.data_frame
+    def vdem_dict_table():
+        return render.DataGrid(VDEM_DICT_DF, filters=True, height="360px", width="100%")
 
     # Custom Upload Handlers
     @reactive.calc
@@ -1333,138 +1679,8 @@ def server(input, output, session):
             class_="uf-summary-list",
         )
 
-    @reactive.effect
-    def _update_ml_target_choices():
-        try:
-            df = uploaded_raw_dataset()
-        except Exception:
-            return
-        if df is not None and len(df.columns):
-            ui.update_select("ml_target", choices={str(col): str(col).replace("_", " ").title() for col in df.columns}, selected=str(df.columns[-1]))
-
-    @reactive.calc
-    @reactive.event(input.run_ml)
-    def ml_result():
-        if input.run_ml() == 0:
-            return {"error": "Upload a dataset, choose target column, and click Train Baseline Model."}
-        try:
-            from sklearn.compose import ColumnTransformer
-            from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-            from sklearn.impute import SimpleImputer
-            from sklearn.metrics import accuracy_score, balanced_accuracy_score, f1_score, mean_absolute_error, mean_squared_error, r2_score
-            from sklearn.model_selection import train_test_split
-            from sklearn.pipeline import Pipeline
-            from sklearn.preprocessing import OneHotEncoder
-
-            df = uploaded_raw_dataset()
-            if df is None:
-                raise ValueError("Please upload a CSV dataset in the 'Upload Custom Dataset' tab first.")
-            target = input.ml_target()
-            if target not in df.columns:
-                raise ValueError("Select a valid target column.")
-            task = input.ml_task()
-            data = df.dropna(subset=[target]).copy()
-            if len(data) < 15:
-                raise ValueError("At least 15 valid observations are required to fit a baseline model.")
-            X = data.drop(columns=[target])
-            if X.empty:
-                raise ValueError("The dataset requires predictor columns in addition to the target.")
-
-            if task == "classification":
-                y = data[target].astype(str)
-                counts = y.value_counts()
-                if y.nunique() < 2:
-                    raise ValueError("Classification requires at least 2 distinct outcome classes.")
-                if y.nunique() > 30:
-                    raise ValueError("Maximum 30 classes supported in classification baseline.")
-                stratify = y if counts.min() >= 2 else None
-            else:
-                y = pd.to_numeric(data[target], errors="coerce")
-                valid = y.notna()
-                X, y = X.loc[valid], y.loc[valid]
-                if len(y) < 15:
-                    raise ValueError("At least 15 valid numeric target rows are required for regression.")
-                stratify = None
-
-            numeric_cols = X.select_dtypes(include="number").columns.tolist()
-            categorical_cols = [col for col in X.columns if col not in numeric_cols]
-            for col in categorical_cols:
-                X[col] = X[col].where(X[col].notna(), "Missing").astype(str)
-
-            transformers = []
-            if numeric_cols:
-                transformers.append(("numeric", SimpleImputer(strategy="median"), numeric_cols))
-            if categorical_cols:
-                categorical_pipeline = Pipeline([
-                    ("imputer", SimpleImputer(strategy="most_frequent")),
-                    ("onehot", OneHotEncoder(handle_unknown="ignore")),
-                ])
-                transformers.append(("categorical", categorical_pipeline, categorical_cols))
-
-            if not transformers:
-                raise ValueError("No usable feature columns found.")
-
-            preprocessing = ColumnTransformer(transformers=transformers, remainder="drop")
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42, stratify=stratify)
-
-            if task == "classification":
-                estimator = RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced")
-            else:
-                estimator = RandomForestRegressor(n_estimators=100, random_state=42)
-
-            model = Pipeline([("preprocessing", preprocessing), ("model", estimator)])
-            model.fit(X_train, y_train)
-            predictions = model.predict(X_test)
-
-            if task == "classification":
-                acc = round(float(accuracy_score(y_test, predictions)), 4)
-                f1 = round(float(f1_score(y_test, predictions, average="macro", zero_division=0)), 4)
-                metrics = [
-                    {"Metric": "Prediction Accuracy", "Value": f"{acc * 100:.1f}%", "Description": "Proportion of test observations accurately predicted."},
-                    {"Metric": "Balanced Accuracy", "Value": f"{round(float(balanced_accuracy_score(y_test, predictions))*100, 1)}%", "Description": "Accuracy adjusted for class imbalance."},
-                    {"Metric": "Macro F1 Score", "Value": str(f1), "Description": "Harmonic mean of precision and recall across classes."},
-                ]
-            else:
-                rmse = float(np.sqrt(mean_squared_error(y_test, predictions)))
-                r2 = round(float(r2_score(y_test, predictions)), 4)
-                mae = round(float(mean_absolute_error(y_test, predictions)), 4)
-                metrics = [
-                    {"Metric": "Mean Absolute Error (MAE)", "Value": str(mae), "Description": "Average absolute difference between predictions and actual values."},
-                    {"Metric": "Root Mean Squared Error (RMSE)", "Value": str(round(rmse, 4)), "Description": "Square root of mean squared prediction errors."},
-                    {"Metric": "R² (Variance Explained)", "Value": f"{r2 * 100:.1f}%", "Description": "Proportion of target variance explained by predictors."},
-                ]
-
-            metrics.extend([
-                {"Metric": "Training Sample Size", "Value": str(len(X_train)), "Description": "Number of observations used in model fitting."},
-                {"Metric": "Held-Out Test Sample", "Value": str(len(X_test)), "Description": "Number of independent observations evaluated."},
-            ])
-            return {"error": None, "metrics": pd.DataFrame(metrics), "task": task, "target": target}
-        except Exception as exc:
-            return {"error": str(exc)}
-
     @output
-    @render.ui
-    def ml_status():
-        result = ml_result()
-        if result.get("error"):
-            return ui.div(result["error"], class_="alert alert-warning", style="font-size: 13px;")
-        return ui.div(
-            ui.strong("Evaluation Complete: "),
-            f"Baseline {result['task'].title()} model trained on '{result['target']}'. Performance evaluated on held-out test split.",
-            class_="alert alert-success",
-            style="font-size: 13px;",
-        )
-
-    @output
-    @render.data_frame
-    def ml_metrics():
-        result = ml_result()
-        if result.get("error"):
-            return render.DataGrid(pd.DataFrame({"Status": ["Upload a file and click Train Baseline Model to view metrics."]}), filters=False)
-        return render.DataGrid(result["metrics"], filters=False, height="240px", width="100%")
-
-    @output
-    @render.download_button(filename="data_quality_summary.csv")
+    @render.download(filename="data_quality_summary.csv")
     def download_quality_report():
         try:
             df = uploaded_raw_dataset()
@@ -1496,6 +1712,20 @@ def server(input, output, session):
             return render.DataGrid(pd.DataFrame({"Notice": [str(exc)]}), filters=False)
         if df is None:
             return render.DataGrid(pd.DataFrame({"Notice": ["Upload a CSV file to preview observation records."]}), filters=False)
+
+        try:
+            shift = float(input.upload_sim_shift_pct())
+        except Exception:
+            shift = 0.0
+
+        if shift != 0:
+            df_preview = df.copy()
+            numeric_cols = df_preview.select_dtypes(include="number").columns.tolist()
+            if hasattr(input, "upload_y") and input.upload_y() in numeric_cols:
+                y_col = input.upload_y()
+                df_preview["altered_" + y_col] = (df_preview[y_col] * (1.0 + shift / 100.0)).round(3)
+            return render.DataGrid(df_preview.head(500), filters=True, height="340px", width="100%")
+
         return render.DataGrid(df.head(500), filters=True, height="340px", width="100%")
 
     @output
@@ -1566,6 +1796,15 @@ def server(input, output, session):
         discrete_cols, numeric_cols = get_column_types(df)
 
         try:
+            shift = float(input.upload_sim_shift_pct())
+        except Exception:
+            shift = 0.0
+        try:
+            sim_mode = input.upload_sim_mode()
+        except Exception:
+            sim_mode = "both"
+
+        try:
             if chart == "heatmap" and len(numeric_cols) >= 2:
                 selected = input.upload_heatmap_cols()
                 selected = [c for c in selected if c in numeric_cols] if selected else numeric_cols[:8]
@@ -1591,15 +1830,21 @@ def server(input, output, session):
                     color = input.upload_color() if input.upload_color() != "(None)" else None
                 except Exception:
                     color = None
+                df_hist = df.copy()
+                if shift != 0 and pd.api.types.is_numeric_dtype(df_hist[x]):
+                    df_hist["plot_x"] = df_hist[x] * (1.0 + shift / 100.0) if sim_mode == "altered" else df_hist[x]
+                    x_use = "plot_x"
+                else:
+                    x_use = x
                 fig = px.histogram(
-                    df,
-                    x=x,
+                    df_hist,
+                    x=x_use,
                     color=color,
                     marginal="box",
                     barmode="overlay" if color else "relative",
                     color_discrete_sequence=UF_PALETTE,
-                    labels={x: x_title},
-                    title=f"Distribution of {x_title}",
+                    labels={x_use: x_title},
+                    title=f"Distribution of {x_title}" + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
             elif chart == "box":
                 y = input.upload_y() if hasattr(input, "upload_y") and input.upload_y() in df.columns else (numeric_cols[0] if numeric_cols else df.columns[0])
@@ -1608,15 +1853,21 @@ def server(input, output, session):
                     x = input.upload_x() if input.upload_x() != "(None)" and input.upload_x() in df.columns else None
                 except Exception:
                     x = None
+                df_box = df.copy()
+                if shift != 0 and pd.api.types.is_numeric_dtype(df_box[y]):
+                    df_box["plot_y"] = df_box[y] * (1.0 + shift / 100.0) if sim_mode == "altered" else df_box[y]
+                    y_use = "plot_y"
+                else:
+                    y_use = y
                 fig = px.box(
-                    df,
+                    df_box,
                     x=x,
-                    y=y,
+                    y=y_use,
                     points="outliers",
                     color=x,
                     color_discrete_sequence=UF_PALETTE,
-                    labels={y: y_title, x: str(x).replace("_", " ").title()} if x else {y: y_title},
-                    title=f"Distribution of {y_title}" + (f" across {str(x).replace('_', ' ').title()}" if x else ""),
+                    labels={y_use: y_title, x: str(x).replace("_", " ").title()} if x else {y_use: y_title},
+                    title=f"Distribution of {y_title}" + (f" across {str(x).replace('_', ' ').title()}" if x else "") + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
             elif chart == "scatter":
                 x = input.upload_x() if hasattr(input, "upload_x") and input.upload_x() in df.columns else (numeric_cols[0] if numeric_cols else df.columns[0])
@@ -1631,15 +1882,25 @@ def server(input, output, session):
                     has_sm = True
                 except ImportError:
                     has_sm = False
+
+                df_scatter = df.copy()
+                if shift != 0 and pd.api.types.is_numeric_dtype(df_scatter[y]):
+                    df_scatter["plot_y"] = df_scatter[y] * (1.0 + shift / 100.0) if sim_mode == "altered" else df_scatter[y]
+                    y_use = "plot_y"
+                else:
+                    y_use = y
+
+                render_mode = "webgl" if len(df_scatter) > 1000 else "auto"
                 fig = px.scatter(
-                    df,
+                    df_scatter,
                     x=x,
-                    y=y,
+                    y=y_use,
                     color=color,
                     trendline="ols" if (has_sm and len(df) > 3 and not color) else None,
+                    render_mode=render_mode,
                     color_discrete_sequence=UF_PALETTE,
-                    labels={x: x_title, y: y_title},
-                    title=f"{y_title} vs. {x_title}",
+                    labels={x: x_title, y_use: y_title},
+                    title=f"{y_title} vs. {x_title}" + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
             elif chart in ("bar", "line"):
                 x = input.upload_x() if hasattr(input, "upload_x") and input.upload_x() in df.columns else (discrete_cols[0] if discrete_cols else df.columns[0])
@@ -1654,20 +1915,46 @@ def server(input, output, session):
                 df_clean[y] = pd.to_numeric(df_clean[y], errors="coerce")
                 df_clean = df_clean.dropna(subset=[y])
 
-                if chart == "bar":
-                    if color:
-                        grouped = df_clean.groupby([x, color], dropna=False, as_index=False)[y].mean().sort_values(y, ascending=False).head(40)
-                        fig = px.bar(grouped, x=x, y=y, color=color, barmode="group", color_discrete_sequence=UF_PALETTE, labels={x: x_title, y: y_title}, title=f"Mean {y_title} by {x_title} (Stratified by {str(color).replace('_', ' ').title()})")
-                    else:
-                        grouped = df_clean.groupby(x, dropna=False, as_index=False)[y].mean().sort_values(y, ascending=False).head(30)
-                        fig = px.bar(grouped, x=x, y=y, color=x, color_discrete_sequence=UF_PALETTE, labels={x: x_title, y: y_title}, title=f"Mean {y_title} by {x_title} (Top Groups)")
+                if shift != 0 and sim_mode == "both":
+                    grouped_orig = df_clean.groupby(x, dropna=False, as_index=False)[y].mean().sort_values(y, ascending=False).head(25)
+                    fig = go.Figure()
+                    fig.add_trace(go.Bar(
+                        x=grouped_orig[x].astype(str),
+                        y=grouped_orig[y],
+                        name="Original Observed",
+                        marker_color="#0021A5",
+                    ))
+                    fig.add_trace(go.Bar(
+                        x=grouped_orig[x].astype(str),
+                        y=grouped_orig[y] * (1.0 + shift / 100.0),
+                        name=f"What-If Altered ({shift:+.0f}%)",
+                        marker_color="#FA4616",
+                    ))
+                    fig.update_layout(
+                        barmode="group",
+                        title=f"Original vs. What-If Altered Mean {y_title} by {x_title}",
+                        xaxis_title=x_title,
+                        yaxis_title=f"Mean {y_title}",
+                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                    )
                 else:
-                    if color:
-                        grouped = df_clean.groupby([x, color], dropna=False, as_index=False)[y].mean()
-                        fig = px.line(grouped, x=x, y=y, color=color, markers=True, color_discrete_sequence=UF_PALETTE, labels={x: x_title, y: y_title}, title=f"Trend of {y_title} by {x_title}")
+                    multiplier = (1.0 + shift / 100.0) if (shift != 0 and sim_mode == "altered") else 1.0
+                    df_clean["plot_y"] = df_clean[y] * multiplier
+
+                    if chart == "bar":
+                        if color:
+                            grouped = df_clean.groupby([x, color], dropna=False, as_index=False)["plot_y"].mean().sort_values("plot_y", ascending=False).head(40)
+                            fig = px.bar(grouped, x=x, y="plot_y", color=color, barmode="group", color_discrete_sequence=UF_PALETTE, labels={x: x_title, "plot_y": y_title}, title=f"Mean {y_title} by {x_title} (Stratified by {str(color).replace('_', ' ').title()})")
+                        else:
+                            grouped = df_clean.groupby(x, dropna=False, as_index=False)["plot_y"].mean().sort_values("plot_y", ascending=False).head(30)
+                            fig = px.bar(grouped, x=x, y="plot_y", color=x, color_discrete_sequence=UF_PALETTE, labels={x: x_title, "plot_y": y_title}, title=f"Mean {y_title} by {x_title}")
                     else:
-                        grouped = df_clean.groupby(x, dropna=False, as_index=False)[y].mean()
-                        fig = px.line(grouped, x=x, y=y, markers=True, color_discrete_sequence=UF_PALETTE, labels={x: x_title, y: y_title}, title=f"Trend of Mean {y_title} across {x_title}")
+                        if color:
+                            grouped = df_clean.groupby([x, color], dropna=False, as_index=False)["plot_y"].mean()
+                            fig = px.line(grouped, x=x, y="plot_y", color=color, markers=True, color_discrete_sequence=UF_PALETTE, labels={x: x_title, "plot_y": y_title}, title=f"Trend of {y_title} by {x_title}")
+                        else:
+                            grouped = df_clean.groupby(x, dropna=False, as_index=False)["plot_y"].mean()
+                            fig = px.line(grouped, x=x, y="plot_y", markers=True, color_discrete_sequence=UF_PALETTE, labels={x: x_title, "plot_y": y_title}, title=f"Trend of Mean {y_title} across {x_title}")
             else:
                 fig = px.scatter(title="Select compatible variables for this visualization.")
         except Exception as exc:
@@ -1680,6 +1967,8 @@ def server(input, output, session):
             paper_bgcolor="white",
             plot_bgcolor="white",
         )
+        fig.update_xaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
+        fig.update_yaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
         return fig
 
 
