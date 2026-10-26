@@ -1642,9 +1642,8 @@ def server(input, output, session):
             class_="uf-summary-list",
         )
 
-    @reactive.effect
     @output
-    @render.download_button(filename="data_quality_summary.csv")
+    @render.download(filename="data_quality_summary.csv")
     def download_quality_report():
         try:
             df = uploaded_raw_dataset()
