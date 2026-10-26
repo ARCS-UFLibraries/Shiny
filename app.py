@@ -1,3 +1,4 @@
+import functools
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -12,8 +13,14 @@ DATA_DIR = BASE_DIR / "data"
 MANIFEST_PATH = DATA_DIR / "manifest.csv"
 
 
+@functools.lru_cache(maxsize=4)
 def load_manifest():
     return pd.read_csv(MANIFEST_PATH)
+
+
+@functools.lru_cache(maxsize=16)
+def _load_csv_cached(filepath_str: str) -> pd.DataFrame:
+    return pd.read_csv(filepath_str)
 
 
 def load_dataset(dataset_id=None):
@@ -26,9 +33,10 @@ def load_dataset(dataset_id=None):
     path = DATA_DIR / str(row.iloc[0]["file"])
     if not path.exists():
         raise FileNotFoundError(f"Dataset file does not exist: {path}")
-    return pd.read_csv(path)
+    return _load_csv_cached(str(path))
 
 
+@functools.lru_cache(maxsize=16)
 def dataset_info(dataset_id=None):
     df_m = load_manifest()
     if not dataset_id or dataset_id == "None":
@@ -60,18 +68,27 @@ def get_column_label(col):
     return col.replace("_", " ").title()
 
 
+_COLUMN_TYPES_CACHE = {}
+
 def get_column_types(df):
-    """Categorize columns into discrete/categorical factors and continuous/numeric metrics."""
+    """Categorize columns into discrete/categorical factors and continuous/numeric metrics with caching."""
+    cols_key = tuple(df.columns)
+    if cols_key in _COLUMN_TYPES_CACHE:
+        return _COLUMN_TYPES_CACHE[cols_key]
+
     discrete = []
     numeric = []
     time_or_id_names = {"year", "state", "region", "country", "issue", "age_group", "education", "community", "income_group"}
     for col in df.columns:
-        if df[col].dtype == "object" or col in time_or_id_names or (pd.api.types.is_numeric_dtype(df[col]) and df[col].nunique() <= 30):
+        s = df[col]
+        if s.dtype == "object" or col in time_or_id_names or (pd.api.types.is_numeric_dtype(s) and s.nunique() <= 30):
             discrete.append(col)
-        elif pd.api.types.is_numeric_dtype(df[col]):
+        elif pd.api.types.is_numeric_dtype(s):
             numeric.append(col)
     if not numeric:
         numeric = [c for c in df.select_dtypes(include="number").columns.tolist() if c not in discrete] or df.select_dtypes(include="number").columns.tolist()
+    
+    _COLUMN_TYPES_CACHE[cols_key] = (discrete, numeric)
     return discrete, numeric
 
 
@@ -105,7 +122,11 @@ def build_filter_inputs(df, prefix="filter_"):
     for col in discrete_cols[:6]:
         if col == "year":
             continue
-        vals = sorted(df[col].dropna().astype(str).unique())
+        col_s = df[col].dropna()
+        if col_s.dtype == "object":
+            vals = sorted(col_s.unique())
+        else:
+            vals = sorted(col_s.astype(str).unique())
         if 1 < len(vals) <= 220:
             clean_name = get_column_label(col)
             controls.append(
@@ -1043,7 +1064,7 @@ def server(input, output, session):
 
     @reactive.calc
     def filtered_data():
-        df = raw_data().copy()
+        df = raw_data()
         discrete_cols, numeric_cols = get_column_types(df)
         
         # Apply categorical/discrete filters
@@ -1053,7 +1074,10 @@ def server(input, output, session):
             except Exception:
                 selected = None
             if selected:
-                df = df[df[col].astype(str).isin(selected)]
+                if df[col].dtype == "object":
+                    df = df[df[col].isin(selected)]
+                else:
+                    df = df[df[col].astype(str).isin(selected)]
                 
         # Apply numeric range sliders
         for col in numeric_cols:
@@ -1300,6 +1324,7 @@ def server(input, output, session):
                 else:
                     plot_y = y_var
 
+                render_mode = "webgl" if len(df_plot) > 1000 else "auto"
                 fig = px.scatter(
                     df_plot,
                     x=x_var,
@@ -1308,6 +1333,7 @@ def server(input, output, session):
                     color_discrete_sequence=UF_PALETTE,
                     trendline="ols" if (has_statsmodels and len(df) > 3 and not color) else None,
                     hover_data=df.columns.tolist()[:6],
+                    render_mode=render_mode,
                     labels={x_var: x_title, str(plot_y): str(plot_y).replace("_", " ").title()},
                     title=f"{str(plot_y).replace('_', ' ').title()} vs. {x_title}" + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
@@ -1828,12 +1854,14 @@ def server(input, output, session):
                 else:
                     y_use = y
 
+                render_mode = "webgl" if len(df_scatter) > 1000 else "auto"
                 fig = px.scatter(
                     df_scatter,
                     x=x,
                     y=y_use,
                     color=color,
                     trendline="ols" if (has_sm and len(df) > 3 and not color) else None,
+                    render_mode=render_mode,
                     color_discrete_sequence=UF_PALETTE,
                     labels={x: x_title, y_use: y_title},
                     title=f"{y_title} vs. {x_title}" + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
