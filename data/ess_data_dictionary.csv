@@ -1,0 +1,40 @@
+Theme,Variable code,Item,Scale / coding,Teaching notes,Rounds available,Verified in ESS Data Portal? (Y/N)
+Political trust & democratic satisfaction,trstprl,Trust in country's parliament,"0-10 (0 = no trust, 10 = complete trust)",Clear East-West gap; shifts with backsliding episodes.,All core rounds (1-11),Y
+Political trust & democratic satisfaction,trstlgl,Trust in the legal system,"0-10 (0 = no trust, 10 = complete trust)",Rule-of-law perceptions from below; pairs well with V-Dem judicial indicators.,All core rounds (1-11),Y
+Political trust & democratic satisfaction,trstplc,Trust in the police,"0-10 (0 = no trust, 10 = complete trust)",Usually the most-trusted institution; a good baseline for comparison.,All core rounds (1-11),Y
+Political trust & democratic satisfaction,trstplt,Trust in politicians,"0-10 (0 = no trust, 10 = complete trust)",Very low across postcommunist states.,All core rounds (1-11),Y
+Political trust & democratic satisfaction,trstprt,Trust in political parties,"0-10 (0 = no trust, 10 = complete trust)",Very low across postcommunist states.,All core rounds (1-11),Y
+Political trust & democratic satisfaction,trstep,Trust in the European Parliament,"0-10 (0 = no trust, 10 = complete trust)",Often higher than national trust in CEE - a good discussion point.,All core rounds (1-11),Y
+Political trust & democratic satisfaction,stfdem,Satisfaction with how democracy works,"0-10 (0 = extremely dissatisfied, 10 = extremely satisfied)",The classic backsliding outcome variable.,All core rounds (1-11),Y
+Political trust & democratic satisfaction,stfgov,Satisfaction with the national government,"0-10 (0 = extremely dissatisfied, 10 = extremely satisfied)","Shows partisan polarization over time (Hungary, Poland).",All core rounds (1-11),Y
+Political trust & democratic satisfaction,stfeco,Satisfaction with the economy,"0-10 (0 = extremely dissatisfied, 10 = extremely satisfied)",Separates performance-based support from support for democracy.,All core rounds (1-11),Y
+Europe & the EU,euftf,European unification should go further or has gone too far,"0-10 (0 = gone too far, 10 = go further)",The single best EU-attitude item in the ESS.,Most rounds (check portal),Y
+Europe & the EU,atchctr,Emotional attachment to country,"0-10 (0 = not at all, 10 = very emotionally attached)",Scatter against atcherp: national vs. European identity.,Recent rounds only,Y
+Europe & the EU,atcherp,Emotional attachment to Europe,"0-10 (0 = not at all, 10 = very emotionally attached)",Scatter against atchctr.,Recent rounds only,Y
+Immigration & refugees,imsmetn,Allow immigrants of same ethnic group as majority,"1-4 (1 = allow many, 4 = allow none)",Compare with imdfetn: the gap shows ethnic vs general opposition. Hungary and Czechia show largest gaps.,All core rounds (1-11),Y
+Immigration & refugees,imdfetn,Allow immigrants of different ethnic group,"1-4 (1 = allow many, 4 = allow none)",See imsmetn.,All core rounds (1-11),Y
+Immigration & refugees,impcntr,Allow immigrants from poorer countries outside Europe,"1-4 (1 = allow many, 4 = allow none)",Most relevant item for the 2015 refugee debates.,All core rounds (1-11),Y
+Immigration & refugees,imbgeco,Immigration bad or good for country's economy,"0-10 (0 = bad, 10 = good)",Assesses economic perceptions of immigration.,All core rounds (1-11),Y
+Immigration & refugees,imueclt,Country's cultural life undermined or enriched by immigrants,"0-10 (0 = undermined, 10 = enriched)",Assesses cultural perceptions of immigration.,All core rounds (1-11),Y
+Immigration & refugees,imwbcnt,Immigrants make country worse or better place to live,"0-10 (0 = worse, 10 = better)",Overall assessment of immigrant impact.,All core rounds (1-11),Y
+Values & culture,freehms,Gays and lesbians free to live life as they wish,"1-5 (1 = agree strongly, 5 = disagree strongly)",Reverse-coded relative to most items - flip for charts.,All core rounds (1-11),Y
+Values & culture,rlgdgr,How religious are you,"0-10 (0 = not at all, 10 = very religious)",Self-reported religiosity.,All core rounds (1-11),Y
+Values & culture,rlgatnd,Attendance at religious services,"1-7 (1 = every day, 7 = never)",Behavioral religiosity indicator.,All core rounds (1-11),Y
+Values & culture,lrscale,Left-right self-placement,"0-10 (0 = left, 10 = right)",In postcommunist countries left and right carry different meanings - useful caution for students.,All core rounds (1-11),Y
+Values & culture,gincdif,Government should reduce differences in income levels,"1-5 (1 = agree strongly, 5 = disagree strongly)",Support for economic redistribution.,All core rounds (1-11),Y
+Values & culture,ppltrst,Most people can be trusted,"0-10 (0 = you cannot be too careful, 10 = most people can be trusted)",Social trust is notably low in postcommunist societies.,All core rounds (1-11),Y
+Political participation,vote,Voted in last national election,1 = yes; 2 = no; 3 = not eligible,Exclude not eligible when computing turnout.,All core rounds (1-11),Y
+Political participation,polintr,Interest in politics,"1-4 (1 = very interested, 4 = not at all)",Subjective political interest.,All core rounds (1-11),Y
+Political participation,contplt,Contacted a politician or government official,1 = yes; 2 = no,Direct citizen engagement over past 12 months.,All core rounds (1-11),Y
+Political participation,pbldmn,Took part in lawful public demonstration,1 = yes; 2 = no,Especially interesting around Czech and Hungarian mobilization waves.,All core rounds (1-11),Y
+Political participation,sgnptit,Signed a petition,1 = yes; 2 = no,Non-electoral participation indicator.,All core rounds (1-11),Y
+Rotating modules,understand_dem,Understandings of democracy module,Various 0-10 items,"Items on courts treating everyone equally, free and fair elections, media freedom. Pairs with backsliding datasets.",Rounds 6 (2012) and 10 (2020-22),Y
+Rotating modules,immig_module,Immigration and refugee module,Various,Includes items on refugees and asylum applicants.,Round 7 (2014),Y
+Grouping & controls,cntry,Country,"ISO 2-letter code (e.g. HU, PL, CZ, DE, SE)",Primary geographic grouping variable.,All core rounds (1-11),Y
+Grouping & controls,essround,ESS round,Rounds 1-11,Time axis across survey waves (2002-2023).,All core rounds (1-11),Y
+Grouping & controls,gndr,Gender,1 = male; 2 = female,Demographic control.,All core rounds (1-11),Y
+Grouping & controls,agea,Age of respondent,Years (continuous),Calculated age.,All core rounds (1-11),Y
+Grouping & controls,eisced,Education (ES-ISCED),1-7 (low to high),Key cleavage behind populist support.,Round 5 onward (harmonized),Y
+Grouping & controls,brncntr,Born in country,1 = yes; 2 = no,Native vs foreign born.,All core rounds (1-11),Y
+Grouping & controls,domicil,Domicile: urban to rural,"1-5 (1 = big city, 5 = farm/countryside)",Key cleavage behind populist support.,All core rounds (1-11),Y
+Grouping & controls,anweight,Analysis weight,Survey weighting variable,Apply to every country-round mean; the tool should do this automatically.,Provided for all rounds in recent data releases,Y

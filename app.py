@@ -57,14 +57,28 @@ def load_vdem_dictionary():
     return pd.DataFrame()
 
 
+def load_ess_dictionary():
+    dict_path = DATA_DIR / "ess_data_dictionary.csv"
+    if dict_path.exists():
+        try:
+            return pd.read_csv(dict_path)
+        except Exception:
+            return pd.DataFrame()
+    return pd.DataFrame()
+
+
 VDEM_DICT_DF = load_vdem_dictionary()
+ESS_DICT_DF = load_ess_dictionary()
+
 VDEM_LABELS = dict(zip(VDEM_DICT_DF["Variable code"], VDEM_DICT_DF["Name"])) if not VDEM_DICT_DF.empty else {}
+ESS_LABELS = dict(zip(ESS_DICT_DF["Variable code"], ESS_DICT_DF["Item"])) if not ESS_DICT_DF.empty else {}
+CODEBOOK_LABELS = {**VDEM_LABELS, **ESS_LABELS}
 
 
 def get_column_label(col):
-    """Return student-friendly readable label for column, utilizing V-Dem codebook mapping."""
-    if col in VDEM_LABELS:
-        return f"{VDEM_LABELS[col]} ({col})"
+    """Return student-friendly readable label for column, utilizing V-Dem & ESS codebook mapping."""
+    if col in CODEBOOK_LABELS:
+        return f"{CODEBOOK_LABELS[col]} ({col})"
     return col.replace("_", " ").title()
 
 
@@ -970,6 +984,24 @@ app_ui = ui.page_fluid(
                     ui.div(
                         ui.div(
                             ui.div(
+                                ui.h2("European Social Survey (ESS) Data Dictionary (Rounds 1–11)", class_="uf-card-title"),
+                                ui.p("Official ESS variable codebook: political trust, democratic satisfaction, EU attitudes, immigration perceptions, values, and participation items.", class_="uf-card-sub"),
+                            ),
+                            ui.tags.a(
+                                "📥 Download ESS Data Dictionary (CSV)",
+                                href="/ess_data_dictionary.csv",
+                                download="ess_data_dictionary.csv",
+                                class_="btn-uf-outline",
+                                style="text-decoration: none; font-size: 13px;",
+                            ),
+                            class_="uf-card-header",
+                        ),
+                        ui.output_data_frame("ess_dict_table"),
+                        class_="uf-card",
+                    ),
+                    ui.div(
+                        ui.div(
+                            ui.div(
                                 ui.h2("V-Dem Global Democracy Data Dictionary (1900–2025)", class_="uf-card-title"),
                                 ui.p("Comprehensive codebook metadata: index hierarchy levels, scale direction, and pedagogical teaching notes.", class_="uf-card-sub"),
                             ),
@@ -1486,6 +1518,11 @@ def server(input, output, session):
     @render.data_frame
     def manifest_table():
         return render.DataGrid(manifest(), filters=False, height="240px", width="100%")
+
+    @output
+    @render.data_frame
+    def ess_dict_table():
+        return render.DataGrid(ESS_DICT_DF, filters=True, height="360px", width="100%")
 
     @output
     @render.data_frame
