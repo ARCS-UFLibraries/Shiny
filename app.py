@@ -658,10 +658,74 @@ body {
   border-top: 1px solid var(--border-subtle);
   margin-top: 48px;
 }
+
+/* ESRI ArcGIS StoryMaps & Spatial Lab Styles */
+.storymap-companion-box {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-top: 14px;
+  box-shadow: 0 2px 6px rgba(0, 33, 165, 0.04);
+}
+.storymap-pill {
+  display: inline-block;
+  background: var(--uf-blue);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.storymap-banner-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin-bottom: 4px;
+}
+.storymap-banner-desc {
+  font-size: 12px;
+  color: var(--ink-secondary);
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+}
+.storymap-viewer-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+.storymap-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
 """
 
 # Official University of Florida Visual Palette
 UF_PALETTE = ["#0021A5", "#FA4616", "#007A33", "#5C768D", "#D35400", "#1E3A8A"]
+
+US_STATE_CODES = {
+    "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
+    "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
+    "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA",
+    "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
+    "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS", "Missouri": "MO",
+    "Montana": "MT", "Nebraska": "NE", "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ",
+    "New Mexico": "NM", "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH",
+    "Oklahoma": "OK", "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
+    "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT",
+    "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY",
+}
 
 app_ui = ui.page_fluid(
     ui.tags.head(
@@ -737,6 +801,7 @@ app_ui = ui.page_fluid(
                                 selected="vdem_democracy",
                             ),
                             ui.output_ui("dataset_description"),
+                            ui.output_ui("dataset_storymap_banner"),
                             ui.hr(style="margin: 16px 0; border-color: var(--border-subtle);"),
                             ui.div("Dataset Filters", class_="sidebar-badge"),
                             ui.output_ui("dynamic_filters"),
@@ -816,6 +881,7 @@ app_ui = ui.page_fluid(
                                         "hist": "Distribution (Histogram)",
                                         "box": "Box Plot (Quartiles & Outliers)",
                                         "heatmap": "Correlation Heatmap Matrix (All Metrics)",
+                                        "map": "Choropleth Geographic Map (Spatial Spread)",
                                     },
                                     selected="bar",
                                 ),
@@ -839,6 +905,7 @@ app_ui = ui.page_fluid(
                         ),
                     ),
                 ),
+                value="tab_explore",
             ),
             # TAB 2: UPLOAD CUSTOM DATASET
             ui.nav_panel(
@@ -1044,6 +1111,91 @@ app_ui = ui.page_fluid(
                     ),
                 ),
             ),
+            # TAB 4: ESRI ARCGIS STORYMAPS & SPATIAL LAB
+            ui.nav_panel(
+                "ESRI ArcGIS StoryMaps",
+                ui.div(
+                    ui.div(
+                        ui.div(
+                            ui.span("Spatial Social Science", class_="uf-hero-tag"),
+                            ui.h1("ESRI ArcGIS StoryMaps & Spatial Laboratory"),
+                            ui.p(
+                                "Explore real-world spatial narratives, electoral district boundaries, and global democratic dynamics linked directly to your empirical social science datasets."
+                            ),
+                        ),
+                        ui.div(
+                            ui.div(
+                                ui.div("🗺️", style="font-size: 20px; line-height: 1;"),
+                                ui.span("Spatial Context", class_="uf-step-label"),
+                            ),
+                            ui.span("→", class_="uf-step-arrow"),
+                            ui.div(
+                                ui.div("📊", style="font-size: 20px; line-height: 1;"),
+                                ui.span("Dataset Linked", class_="uf-step-label"),
+                            ),
+                            ui.span("→", class_="uf-step-arrow"),
+                            ui.div(
+                                ui.div("🔍", style="font-size: 20px; line-height: 1;"),
+                                ui.span("Spatial Inquiry", class_="uf-step-label"),
+                            ),
+                            class_="uf-workflow-steps",
+                        ),
+                        class_="uf-hero",
+                    ),
+                    ui.layout_sidebar(
+                        ui.sidebar(
+                            ui.div("StoryMap Navigator", class_="sidebar-badge"),
+                            ui.input_select(
+                                "storymap_dataset",
+                                "Select Dataset Narrative:",
+                                choices={
+                                    "vdem_democracy": "Varieties of Democracy (V-Dem) ➔ Global Democracy & Backsliding",
+                                    "elections": "Civic Participation & Turnout ➔ Electoral Geography & Gerrymandering",
+                                    "public_opinion": "Social Attitudes & Trends ➔ Spatial Dynamics of Public Opinion",
+                                    "participation": "Education, Urbanization & Action ➔ Urban vs. Rural Civic Divides",
+                                    "social_trust_ess": "Social Trust & Satisfaction (ESS) ➔ European Social Trust",
+                                    "global_inequality": "Global Development & Inequality ➔ Spatial Inequality & Human Dev",
+                                    "custom": "🔗 Custom ArcGIS StoryMap (Paste URL / Story ID)",
+                                },
+                                selected="vdem_democracy",
+                            ),
+                            ui.panel_conditional(
+                                "input.storymap_dataset === 'custom'",
+                                ui.input_text(
+                                    "custom_storymap_url",
+                                    "ArcGIS StoryMap URL or Story ID:",
+                                    placeholder="https://storymaps.arcgis.com/stories/...",
+                                ),
+                                ui.p("Enter any public ArcGIS StoryMap URL or Story ID to embed and analyze it.", class_="text-muted small"),
+                            ),
+                            ui.output_ui("storymap_sidebar_info"),
+                            ui.hr(style="margin: 16px 0; border-color: var(--border-subtle);"),
+                            ui.input_action_button(
+                                "storymap_jump_to_data",
+                                "📊 Explore Raw Dataset in Explorer →",
+                                class_="btn-uf-outline",
+                                width="100%",
+                            ),
+                            open="open",
+                            width="340px",
+                        ),
+                        ui.div(
+                            ui.div(
+                                ui.div(
+                                    ui.output_ui("storymap_header_title"),
+                                    ui.output_ui("storymap_actions"),
+                                    class_="storymap-toolbar",
+                                ),
+                                ui.output_ui("storymap_frame"),
+                                class_="storymap-viewer-card",
+                            ),
+                            ui.output_ui("storymap_inquiry_card"),
+                        ),
+                    ),
+                ),
+                value="tab_storymaps",
+            ),
+            id="main_nav",
         ),
         class_="uf-container",
     ),
@@ -1065,6 +1217,15 @@ def server(input, output, session):
         m = manifest()
         choices = dict(zip(m.dataset_id, m.dataset_name))
         ui.update_select("dataset", choices=choices, selected=m.iloc[0].dataset_id)
+
+        sm_choices = {}
+        for _, row in m.iterrows():
+            d_id = str(row["dataset_id"])
+            d_name = str(row["dataset_name"])
+            sm_title = str(row.get("storymap_title", "Spatial Narrative"))
+            sm_choices[d_id] = f"{d_name} ➔ {sm_title}"
+        sm_choices["custom"] = "🔗 Custom ArcGIS StoryMap (Paste URL / Story ID)"
+        ui.update_select("storymap_dataset", choices=sm_choices, selected=m.iloc[0].dataset_id)
 
     @reactive.calc
     def raw_data():
@@ -1135,6 +1296,57 @@ def server(input, output, session):
             ui.p(ui.strong("Category: "), str(r.get("category", "Social Science")), class_="text-muted small"),
             ui.p(ui.strong("Source: "), str(r.source), class_="text-muted small"),
         )
+
+    @output
+    @render.ui
+    def dataset_storymap_banner():
+        try:
+            ds_id = input.dataset()
+        except Exception:
+            ds_id = None
+        m = manifest()
+        row = m.loc[m.dataset_id == ds_id]
+        if row.empty:
+            return None
+        r = row.iloc[0]
+        sm_title = r.get("storymap_title")
+        if pd.isna(sm_title) or not sm_title:
+            return None
+        return ui.div(
+            ui.div(
+                ui.span("🗺️ Linked ESRI StoryMap", class_="storymap-pill"),
+                ui.div(str(sm_title), class_="storymap-banner-title"),
+                ui.p(str(r.get("storymap_summary", "")), class_="storymap-banner-desc"),
+                ui.input_action_button(
+                    "jump_to_storymap",
+                    "Launch Interactive StoryMap →",
+                    class_="btn-uf-orange",
+                    style="width: 100%; font-size: 12px; padding: 7px 12px;",
+                ),
+            ),
+            class_="storymap-companion-box",
+        )
+
+    @reactive.effect
+    @reactive.event(input.jump_to_storymap)
+    def _jump_to_storymap():
+        try:
+            cur_ds = input.dataset()
+            ui.update_select("storymap_dataset", selected=cur_ds)
+        except Exception:
+            pass
+        ui.update_navs("main_nav", selected="tab_storymaps")
+
+    @reactive.effect
+    @reactive.event(input.storymap_jump_to_data)
+    def _jump_to_data():
+        try:
+            sm_ds = input.storymap_dataset()
+            if sm_ds and sm_ds != "custom":
+                ui.update_select("dataset", selected=sm_ds)
+        except Exception:
+            pass
+        ui.update_navs("main_nav", selected="tab_explore")
 
     @output
     @render.ui
@@ -1281,6 +1493,21 @@ def server(input, output, session):
             return ui.div(
                 ui.input_select("y_col", "Continuous Variable", choices=num_choices or disc_choices, selected=y_default),
                 ui.input_select("x_col", "Group Category", choices={"(None)": "Aggregate (All)"} | disc_choices, selected=x_default),
+                class_="uf-toolbar",
+            )
+        if chart == "map":
+            y_default = "v2x_libdem" if "v2x_libdem" in numeric_cols else ("turnout_percent" if "turnout_percent" in numeric_cols else (numeric_cols[0] if numeric_cols else df.columns[-1]))
+            controls = [
+                ui.input_select("y_col", "Metric to Map (Color Intensity)", choices=num_choices, selected=y_default)
+            ]
+            if "year" in df.columns:
+                valid_yrs = sorted([int(y) for y in df["year"].dropna().unique().tolist()])
+                if len(valid_yrs) > 1:
+                    controls.append(
+                        ui.input_select("map_snapshot_year", "Map Snapshot Year", choices={str(y): str(y) for y in valid_yrs}, selected=str(valid_yrs[-1]))
+                    )
+            return ui.div(
+                *controls,
                 class_="uf-toolbar",
             )
         return ui.p("Select variables to render this chart.", class_="text-muted small")
@@ -1482,6 +1709,68 @@ def server(input, output, session):
                     labels={y_use: y_title, x_grp: str(x_grp).replace("_", " ").title()} if x_grp else {y_use: y_title},
                     title=f"Distribution of {y_title}" + (f" by {str(x_grp).replace('_', ' ').title()}" if x_grp else "") + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
                 )
+            elif chart == "map":
+                df_map = df.copy()
+                geo_col = None
+                mode = None
+                scope = "world"
+                if "country_text_id" in df_map.columns:
+                    geo_col = "country_text_id"
+                    mode = "ISO-3"
+                    scope = "world"
+                elif "country_name" in df_map.columns:
+                    geo_col = "country_name"
+                    mode = "country names"
+                    scope = "world"
+                elif "country" in df_map.columns:
+                    geo_col = "country"
+                    mode = "country names"
+                    scope = "europe"
+                elif "state" in df_map.columns:
+                    df_map["state_code"] = df_map["state"].map(US_STATE_CODES).fillna(df_map["state"])
+                    geo_col = "state_code"
+                    mode = "USA-states"
+                    scope = "usa"
+
+                if not geo_col:
+                    fig = px.scatter(title="This dataset does not contain standard country or state geographic variables for automated choropleths.")
+                    fig.update_layout(template="plotly_white")
+                    return fig
+
+                if hasattr(input, "map_snapshot_year") and input.map_snapshot_year() and "year" in df_map.columns:
+                    try:
+                        yr_val = int(input.map_snapshot_year())
+                        df_map = df_map[df_map["year"] == yr_val]
+                    except Exception:
+                        pass
+
+                df_map[y_var] = pd.to_numeric(df_map[y_var], errors="coerce")
+                if shift != 0:
+                    df_map[y_var] = df_map[y_var] * (1.0 + shift / 100.0)
+
+                grouped_map = df_map.groupby(geo_col, as_index=False)[y_var].mean()
+
+                colorscale = "Blues" if "corr" not in str(y_var).lower() and "gini" not in str(y_var).lower() else "Reds"
+                fig = px.choropleth(
+                    grouped_map,
+                    locations=geo_col,
+                    locationmode=mode,
+                    color=y_var,
+                    scope=scope,
+                    color_continuous_scale=colorscale,
+                    labels={y_var: y_title},
+                    title=f"Geographic Choropleth: {y_title}" + (f" [Simulated {shift:+.0f}% shift]" if shift != 0 else ""),
+                )
+                fig.update_geos(
+                    showcoastlines=True,
+                    coastlinecolor="#cbd5e1",
+                    showland=True,
+                    landcolor="#f8fafc",
+                    showocean=True,
+                    oceancolor="#edf2ff",
+                    showlakes=True,
+                    lakecolor="#edf2ff",
+                )
             else:
                 fig = px.scatter(df, x=x_var, y=y_var, title=f"{y_title} vs. {x_title}")
         except Exception as exc:
@@ -1528,6 +1817,128 @@ def server(input, output, session):
     @render.data_frame
     def vdem_dict_table():
         return render.DataGrid(VDEM_DICT_DF, filters=True, height="360px", width="100%")
+
+    # ESRI ArcGIS StoryMaps & Spatial Lab Handlers
+    @reactive.calc
+    def active_storymap():
+        try:
+            ds_id = input.storymap_dataset()
+        except Exception:
+            ds_id = "vdem_democracy"
+        m = manifest()
+        if ds_id == "custom":
+            try:
+                custom_url = input.custom_storymap_url().strip()
+            except Exception:
+                custom_url = ""
+            if not custom_url:
+                custom_url = "https://storymaps.arcgis.com/stories/619fba8501104e17950c45de10903820"
+            elif not custom_url.startswith("http"):
+                custom_url = f"https://storymaps.arcgis.com/stories/{custom_url}"
+            return {
+                "title": "Custom ArcGIS StoryMap / Spatial Project",
+                "url": custom_url,
+                "summary": "Custom spatial analysis narrative loaded from your ArcGIS Online account or Story ID.",
+                "questions": "What spatial patterns, regional disparities, or policy implications does this map reveal?",
+                "dataset_name": "Custom Student / Faculty Analysis",
+                "is_custom": True,
+            }
+
+        row = m.loc[m.dataset_id == ds_id]
+        if row.empty:
+            row = m.iloc[[0]]
+        r = row.iloc[0]
+        return {
+            "title": str(r.get("storymap_title", "Spatial Narrative")),
+            "url": str(r.get("storymap_url", "https://storymaps.arcgis.com/stories/619fba8501104e17950c45de10903820")),
+            "summary": str(r.get("storymap_summary", "Interactive spatial story map.")),
+            "questions": str(r.get("storymap_questions", "Analyze spatial distributions and local impacts.")),
+            "dataset_name": str(r.get("dataset_name", "")),
+            "is_custom": False,
+        }
+
+    @output
+    @render.ui
+    def storymap_header_title():
+        sm = active_storymap()
+        return ui.div(
+            ui.span("ESRI ArcGIS StoryMap", class_="storymap-pill"),
+            ui.h2(sm["title"], class_="uf-card-title", style="margin: 4px 0 0 0; font-size: 20px;"),
+            ui.p(f"Linked Dataset: {sm['dataset_name']}", class_="uf-card-sub", style="margin: 4px 0 0 0;"),
+        )
+
+    @output
+    @render.ui
+    def storymap_actions():
+        sm = active_storymap()
+        return ui.div(
+            ui.tags.a(
+                "↗ Open in ArcGIS Online",
+                href=sm["url"],
+                target="_blank",
+                rel="noopener noreferrer",
+                class_="btn-uf-orange",
+                style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;",
+            ),
+        )
+
+    @output
+    @render.ui
+    def storymap_frame():
+        sm = active_storymap()
+        return ui.tags.iframe(
+            src=sm["url"],
+            width="100%",
+            height="780px",
+            frameborder="0",
+            allowfullscreen="true",
+            allow="geolocation",
+            style="border: 1px solid var(--border-subtle); border-radius: 12px; width: 100%; height: 780px;",
+        )
+
+    @output
+    @render.ui
+    def storymap_sidebar_info():
+        sm = active_storymap()
+        return ui.div(
+            ui.div(
+                ui.tags.strong("Narrative Focus: "),
+                ui.p(sm["summary"], style="margin-top: 4px; font-size: 13px; color: var(--ink-secondary); line-height: 1.5;"),
+                style="margin-top: 14px;",
+            ),
+            ui.div(
+                ui.tags.strong("Guiding Spatial Question: "),
+                ui.p(sm["questions"], style="margin-top: 4px; font-size: 12.5px; color: var(--uf-blue); font-style: italic; line-height: 1.5;"),
+                style="margin-top: 10px; padding: 12px 14px; background: var(--uf-blue-soft); border-radius: 8px; border-left: 3px solid var(--uf-blue);",
+            ),
+        )
+
+    @output
+    @render.ui
+    def storymap_inquiry_card():
+        return ui.div(
+            ui.div(
+                ui.h3("Spatial Social Science Inquiry & Discussion Prompts", class_="uf-card-title", style="font-size: 16px;"),
+                ui.p("Use these guiding prompts to connect the StoryMap's geographic representation with the statistical findings in the Data Explorer:", class_="uf-card-sub"),
+                ui.tags.ul(
+                    ui.tags.li(
+                        ui.tags.strong("Spatial Sorting & Clustering: "),
+                        "Do variables cluster regionally (e.g. across states or global continents), or are they uniformly distributed?",
+                    ),
+                    ui.tags.li(
+                        ui.tags.strong("Boundary Effects & Gerrymandering: "),
+                        "How do administrative borders (district lines, national borders) create sharp discontinuities in policy outcomes?",
+                    ),
+                    ui.tags.li(
+                        ui.tags.strong("Counterfactual Thinking: "),
+                        "If you alter a variable by 20% in the What-If Sandbox, which geographic regions would cross critical institutional thresholds first?",
+                    ),
+                    style="line-height: 1.7; font-size: 13.5px; color: var(--ink-secondary); margin-top: 8px;",
+                ),
+            ),
+            class_="uf-card",
+            style="margin-top: 20px;",
+        )
 
     # Custom Upload Handlers
     @reactive.calc
