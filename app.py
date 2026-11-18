@@ -5,12 +5,15 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from shiny import App, reactive, render, ui
-from shinywidgets import output_widget, render_widget
 from analytics import profile_dataframe, validate_data_dictionary
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 MANIFEST_PATH = DATA_DIR / "manifest.csv"
+
+
+def render_plotly_html(fig):
+    return ui.HTML(fig.to_html(include_plotlyjs=False, full_html=False, config={"responsive": True, "displayModeBar": True}))
 
 
 @functools.lru_cache(maxsize=4)
@@ -709,6 +712,126 @@ body {
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border-subtle);
 }
+
+/* Head-to-Head Case Comparison Styles */
+.compare-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.compare-hero-box {
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  border: 2px solid;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.compare-hero-box.case-a {
+  background: linear-gradient(135deg, #edf2ff 0%, #ffffff 100%);
+  border-color: var(--uf-blue);
+}
+.compare-hero-box.case-b {
+  background: linear-gradient(135deg, #fff5f2 0%, #ffffff 100%);
+  border-color: var(--uf-orange);
+}
+.compare-tag {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+.compare-tag.case-a { color: var(--uf-blue); }
+.compare-tag.case-b { color: var(--uf-orange); }
+.compare-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.compare-sub {
+  font-size: 12.5px;
+  color: var(--ink-secondary);
+}
+
+.compare-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+.compare-table th {
+  background: #f8fafc;
+  padding: 12px 16px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  border-bottom: 2px solid var(--border-subtle);
+}
+.compare-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--ink-primary);
+}
+.compare-table tr:hover {
+  background: #f8fafc;
+}
+
+.delta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+}
+.delta-badge.adv-a {
+  background: var(--uf-blue-soft);
+  color: var(--uf-blue);
+  border: 1px solid #bfdbfe;
+}
+.delta-badge.adv-b {
+  background: var(--uf-orange-soft);
+  color: var(--uf-orange);
+  border: 1px solid #fecdba;
+}
+.delta-badge.neutral {
+  background: #f1f5f9;
+  color: var(--ink-muted);
+}
+
+.compare-synthesis-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--uf-blue);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  padding: 18px 22px;
+  margin-top: 18px;
+}
+.compare-synthesis-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--uf-blue);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.compare-synthesis-text {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink-primary);
+}
 """
 
 # Official University of Florida Visual Palette
@@ -736,6 +859,7 @@ app_ui = ui.page_fluid(
             rel="stylesheet",
             href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
         ),
+        ui.tags.script(src="https://cdn.plot.ly/plotly-2.35.2.min.js"),
         ui.tags.style(CSS),
     ),
     # UF Branded Top Navigation Bar
@@ -888,12 +1012,29 @@ app_ui = ui.page_fluid(
                                 class_="uf-card-header",
                             ),
                             ui.output_ui("chart_controls"),
-                            ui.div(output_widget("plot"), style="min-height: 440px;"),
+                            ui.div(ui.output_ui("plot"), style="min-height: 440px;"),
                             ui.div(
                                 ui.div("UF Sociological Reflection & Inquiry", class_="uf-insight-title"),
                                 ui.output_ui("pedagogical_prompt"),
                                 class_="uf-insight-box",
                             ),
+                            class_="uf-card",
+                        ),
+                        # Head-to-Head Comparative Case Study Card
+                        ui.div(
+                            ui.div(
+                                ui.div(
+                                    ui.span("COMPARATIVE ANALYSIS WIZARD", class_="storymap-pill"),
+                                    ui.h2("⚔️ Head-to-Head Case Comparison Tool", class_="uf-card-title", style="margin-top: 4px; font-size: 20px;"),
+                                    ui.p(
+                                        "Select two entities (nations, states, or regions) to perform a direct side-by-side comparative analysis with difference deltas (±), grouped visual charts, and automated essay takeaways.",
+                                        class_="uf-card-sub",
+                                    ),
+                                ),
+                                class_="uf-card-header",
+                            ),
+                            ui.output_ui("compare_controls"),
+                            ui.output_ui("compare_display"),
                             class_="uf-card",
                         ),
                         # Data Records Table
@@ -1016,7 +1157,7 @@ app_ui = ui.page_fluid(
                                 class_="uf-card-header",
                             ),
                             ui.output_ui("upload_chart_controls"),
-                            output_widget("upload_plot"),
+                            ui.output_ui("upload_plot"),
                             class_="uf-card",
                         ),
                         ui.div(
@@ -1145,28 +1286,40 @@ app_ui = ui.page_fluid(
                     ui.layout_sidebar(
                         ui.sidebar(
                             ui.div("StoryMap Navigator", class_="sidebar-badge"),
-                            ui.input_select(
-                                "storymap_dataset",
-                                "Select Dataset Narrative:",
+                            ui.input_radio_buttons(
+                                "storymap_view_mode",
+                                "StoryMap Display Mode:",
                                 choices={
-                                    "vdem_democracy": "Varieties of Democracy (V-Dem) ➔ Global Democracy & Backsliding",
-                                    "elections": "Civic Participation & Turnout ➔ Electoral Geography & Gerrymandering",
-                                    "public_opinion": "Social Attitudes & Trends ➔ Spatial Dynamics of Public Opinion",
-                                    "participation": "Education, Urbanization & Action ➔ Urban vs. Rural Civic Divides",
-                                    "social_trust_ess": "Social Trust & Satisfaction (ESS) ➔ European Social Trust",
-                                    "global_inequality": "Global Development & Inequality ➔ Spatial Inequality & Human Dev",
-                                    "custom": "🔗 Custom ArcGIS StoryMap (Paste URL / Story ID)",
+                                    "interactive": "✨ UF Cinematic StoryMap (Built from Datasets)",
+                                    "external": "🌐 External Embed (ArcGIS / StoryMapJS URL)",
                                 },
-                                selected="vdem_democracy",
+                                selected="interactive",
                             ),
                             ui.panel_conditional(
-                                "input.storymap_dataset === 'custom'",
-                                ui.input_text(
-                                    "custom_storymap_url",
-                                    "ArcGIS StoryMap URL or Story ID:",
-                                    placeholder="https://storymaps.arcgis.com/stories/...",
+                                "input.storymap_view_mode === 'external'",
+                                ui.input_select(
+                                    "storymap_dataset",
+                                    "Select Dataset Narrative:",
+                                    choices={
+                                        "vdem_democracy": "Varieties of Democracy (V-Dem) ➔ Global Democracy & Backsliding",
+                                        "elections": "Civic Participation & Turnout ➔ Electoral Geography & Gerrymandering",
+                                        "public_opinion": "Social Attitudes & Trends ➔ Spatial Dynamics of Public Opinion",
+                                        "participation": "Education, Urbanization & Action ➔ Urban vs. Rural Civic Divides",
+                                        "social_trust_ess": "Social Trust & Satisfaction (ESS) ➔ European Social Trust",
+                                        "global_inequality": "Global Development & Inequality ➔ Spatial Inequality & Human Dev",
+                                        "custom": "🔗 Custom ArcGIS StoryMap (Paste URL / Story ID)",
+                                    },
+                                    selected="vdem_democracy",
                                 ),
-                                ui.p("Enter any public ArcGIS StoryMap URL or Story ID to embed and analyze it.", class_="text-muted small"),
+                                ui.panel_conditional(
+                                    "input.storymap_dataset === 'custom'",
+                                    ui.input_text(
+                                        "custom_storymap_url",
+                                        "ArcGIS StoryMap URL or Story ID:",
+                                        placeholder="https://storymaps.arcgis.com/stories/...",
+                                    ),
+                                    ui.p("Enter any public ArcGIS StoryMap URL or Story ID to embed and analyze it.", class_="text-muted small"),
+                                ),
                             ),
                             ui.output_ui("storymap_sidebar_info"),
                             ui.hr(style="margin: 16px 0; border-color: var(--border-subtle);"),
@@ -1204,6 +1357,56 @@ app_ui = ui.page_fluid(
         class_="uf-footer",
     ),
 )
+
+
+def generate_comparative_synthesis(case_a: str, case_b: str, year_str: str, metrics_summary: list) -> str:
+    if not metrics_summary:
+        return "Insufficient indicators to formulate a comparative synthesis."
+
+    a_leads = [m for m in metrics_summary if m["leader"] == "A"]
+    b_leads = [m for m in metrics_summary if m["leader"] == "B"]
+
+    if a_leads and b_leads:
+        lead_a_labels = ", ".join([m["label"] for m in a_leads[:3]])
+        lead_b_labels = ", ".join([m["label"] for m in b_leads[:3]])
+        lead_summary = (
+            f"<strong>{case_a}</strong> demonstrates relative institutional strength in "
+            f"<em>{lead_a_labels}</em>, whereas <strong>{case_b}</strong> registers higher on "
+            f"<em>{lead_b_labels}</em>."
+        )
+    elif a_leads:
+        lead_a_labels = ", ".join([m["label"] for m in a_leads[:3]])
+        lead_summary = (
+            f"<strong>{case_a}</strong> outpaces <strong>{case_b}</strong> across all examined dimensions, "
+            f"including <em>{lead_a_labels}</em>."
+        )
+    elif b_leads:
+        lead_b_labels = ", ".join([m["label"] for m in b_leads[:3]])
+        lead_summary = (
+            f"<strong>{case_b}</strong> outpaces <strong>{case_a}</strong> across all examined dimensions, "
+            f"including <em>{lead_b_labels}</em>."
+        )
+    else:
+        lead_summary = "Both cases demonstrate comparable parity across the evaluated dimensions."
+
+    largest_gap = max(metrics_summary, key=lambda m: abs(m["delta"]))
+    leader_name = case_a if largest_gap["leader"] == "A" else (case_b if largest_gap["leader"] == "B" else "neither")
+    gap_clause = ""
+    if leader_name != "neither":
+        gap_clause = (
+            f" The most pronounced substantive divergence occurs in <strong>{largest_gap['label']}</strong>, "
+            f"where {leader_name} holds a {abs(largest_gap['delta']):.2f} unit lead "
+            f"({largest_gap['val_a']:.2f} vs. {largest_gap['val_b']:.2f})."
+        )
+
+    synthesis = (
+        f"In this comparative case study evaluating <strong>{case_a}</strong> against <strong>{case_b}</strong> "
+        f"({year_str}), empirical findings reveal notable institutional and behavioural divergence. "
+        f"{lead_summary}{gap_clause} "
+        f"From a comparative politics methodology perspective, these observable differences illustrate how historical legacies, "
+        f"governance structures, and policy choices produce divergent trajectories in democratic accountability and civic participation."
+    )
+    return synthesis
 
 
 def server(input, output, session):
@@ -1513,7 +1716,7 @@ def server(input, output, session):
         return ui.p("Select variables to render this chart.", class_="text-muted small")
 
     @output
-    @render_widget
+    @render.ui
     def plot():
         df = filtered_data()
         discrete_cols, numeric_cols = get_column_types(df)
@@ -1528,7 +1731,7 @@ def server(input, output, session):
         if df.empty:
             fig = px.scatter(title="No records match current filter selections. Broaden filters to display data.")
             fig.update_layout(template="plotly_white")
-            return fig
+            return render_plotly_html(fig)
 
         try:
             shift = float(input.sim_shift_pct())
@@ -1786,7 +1989,306 @@ def server(input, output, session):
         )
         fig.update_xaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
         fig.update_yaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
-        return fig
+        return render_plotly_html(fig)
+
+    @reactive.calc
+    def detected_entity_col():
+        df = raw_data()
+        candidates = ["country_name", "country", "state", "region", "nation", "entity", "community", "age_group", "group"]
+        for col in candidates:
+            if col in df.columns:
+                return col
+        for col in df.columns:
+            if df[col].dtype == "object" or df[col].dtype.name == "category":
+                if 2 <= df[col].nunique() <= 300:
+                    return col
+        return None
+
+    @reactive.calc
+    def detected_time_col():
+        df = raw_data()
+        for col in ["year", "time", "date", "survey_round", "round"]:
+            if col in df.columns:
+                return col
+        return None
+
+    @output
+    @render.ui
+    def compare_controls():
+        df = raw_data()
+        entity_col = detected_entity_col()
+        if not entity_col:
+            return ui.p("No categorical entity column available for head-to-head comparison.", class_="text-muted")
+
+        entities = sorted([str(x) for x in df[entity_col].dropna().unique()])
+        if len(entities) < 2:
+            return ui.p("At least two distinct entities are required for comparison.", class_="text-muted")
+
+        default_a = entities[0]
+        default_b = entities[1]
+        for pref_a, pref_b in [("United States", "Sweden"), ("Florida", "California"), ("Nordic Countries", "Western Europe"), ("Sweden", "Germany"), ("Urban", "Rural")]:
+            if pref_a in entities and pref_b in entities:
+                default_a, default_b = pref_a, pref_b
+                break
+
+        time_col = detected_time_col()
+        time_control = None
+        if time_col:
+            years = sorted(df[time_col].dropna().unique().tolist(), reverse=True)
+            time_choices = ["Latest Available"] + [str(y) for y in years]
+            time_control = ui.div(
+                ui.tags.label(f"Snapshot {time_col.replace('_', ' ').title()}", class_="form-label", style="font-size: 12px; font-weight: 700; color: #475569;"),
+                ui.input_select("compare_year", None, choices=time_choices, selected="Latest Available"),
+            )
+
+        metric_control = ui.div(
+            ui.tags.label("Comparison Metric Scope", class_="form-label", style="font-size: 12px; font-weight: 700; color: #475569;"),
+            ui.input_select(
+                "compare_metric_mode",
+                None,
+                choices={"key_indicators": "Key Strategic Indicators", "active_y": "Focus on Active Y-Variable"},
+                selected="key_indicators",
+            ),
+        )
+
+        ctrls = [
+            ui.div(
+                ui.tags.label("Case A (UF Blue)", class_="form-label", style="font-size: 12px; font-weight: 700; color: #0021A5;"),
+                ui.input_select("compare_case_a", None, choices=entities, selected=default_a),
+                class_="col-md-3 col-sm-6 mb-2",
+            ),
+            ui.div(
+                ui.tags.label("Case B (UF Orange)", class_="form-label", style="font-size: 12px; font-weight: 700; color: #FA4616;"),
+                ui.input_select("compare_case_b", None, choices=entities, selected=default_b),
+                class_="col-md-3 col-sm-6 mb-2",
+            ),
+        ]
+        if time_control:
+            ctrls.append(ui.div(time_control, class_="col-md-3 col-sm-6 mb-2"))
+        ctrls.append(ui.div(metric_control, class_="col-md-3 col-sm-6 mb-2"))
+
+        return ui.div(
+            ui.div(*ctrls, class_="row align-items-end"),
+            style="background: #f8fafc; padding: 14px 18px 8px 18px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 20px;",
+        )
+
+    @output
+    @render.ui
+    def compare_display():
+        df = raw_data()
+        entity_col = detected_entity_col()
+        if not entity_col:
+            return ui.HTML("")
+
+        try:
+            case_a = input.compare_case_a()
+            case_b = input.compare_case_b()
+        except Exception:
+            return ui.HTML("")
+
+        if not case_a or not case_b:
+            return ui.HTML("")
+
+        time_col = detected_time_col()
+        df_a = df[df[entity_col].astype(str) == str(case_a)]
+        df_b = df[df[entity_col].astype(str) == str(case_b)]
+        if df_a.empty or df_b.empty:
+            return ui.div(ui.p("Selected cases have no records in this dataset.", class_="text-danger"), class_="alert alert-warning")
+
+        try:
+            year_sel = input.compare_year()
+        except Exception:
+            year_sel = "Latest Available"
+
+        if time_col and year_sel and year_sel != "Latest Available":
+            try:
+                sub_a = df_a[df_a[time_col] == int(year_sel)]
+                sub_b = df_b[df_b[time_col] == int(year_sel)]
+            except Exception:
+                sub_a = df_a[df_a[time_col].astype(str) == str(year_sel)]
+                sub_b = df_b[df_b[time_col].astype(str) == str(year_sel)]
+            year_str = f"Year {year_sel}"
+            if sub_a.empty or sub_b.empty:
+                return ui.div(ui.p(f"One or both cases lack records for {year_str}.", class_="text-danger"), class_="alert alert-warning")
+            df_a, df_b = sub_a, sub_b
+        elif time_col:
+            latest_a = df_a[time_col].max()
+            latest_b = df_b[time_col].max()
+            df_a = df_a[df_a[time_col] == latest_a]
+            df_b = df_b[df_b[time_col] == latest_b]
+            year_str = f"Year {latest_a}" if latest_a == latest_b else f"{case_a} ({latest_a}) vs. {case_b} ({latest_b})"
+        else:
+            year_str = "Aggregated Sample"
+
+        ignore = {'year', 'country_id', 'id', 'cowcode', 'e_regionpol_6c', 'e_regiongeo', 'codingstart', 'codingend'}
+        num_cols = [c for c in df.select_dtypes(include='number').columns if c.lower() not in ignore]
+        if not num_cols:
+            return ui.p("No numeric metrics available for comparison.", class_="text-muted")
+
+        try:
+            mode = input.compare_metric_mode()
+        except Exception:
+            mode = "key_indicators"
+
+        if mode == "active_y":
+            try:
+                active_y = input.y_col()
+                if active_y in num_cols:
+                    metrics = [active_y]
+                else:
+                    metrics = num_cols[:6]
+            except Exception:
+                metrics = num_cols[:6]
+        else:
+            priority_keys = ["v2x_libdem", "v2x_polyarchy", "v2x_partipdem", "v2x_jucon", "v2x_freexp_thick", "v2x_regime"]
+            matched_keys = [c for c in priority_keys if c in num_cols]
+            if matched_keys:
+                remaining = [c for c in num_cols if c not in matched_keys]
+                metrics = (matched_keys + remaining)[:6]
+            else:
+                metrics = num_cols[:6]
+
+        mean_a = df_a[metrics].mean()
+        mean_b = df_b[metrics].mean()
+
+        metrics_summary = []
+        wins_a = 0
+        wins_b = 0
+        ties = 0
+        for col in metrics:
+            va = float(mean_a[col]) if pd.notnull(mean_a[col]) else 0.0
+            vb = float(mean_b[col]) if pd.notnull(mean_b[col]) else 0.0
+            delta = va - vb
+            label = col.replace("_", " ").title()
+
+            if abs(delta) < 0.001:
+                leader = "Tie"
+                ties += 1
+            elif delta > 0:
+                leader = "A"
+                wins_a += 1
+            else:
+                leader = "B"
+                wins_b += 1
+
+            pct_diff = ((va - vb) / abs(vb) * 100) if vb != 0 else 0.0
+            metrics_summary.append({
+                "col": col,
+                "label": label,
+                "val_a": va,
+                "val_b": vb,
+                "delta": delta,
+                "pct_diff": pct_diff,
+                "leader": leader,
+            })
+
+        card_a = ui.div(
+            ui.div("CASE A", class_="compare-tag case-a"),
+            ui.div(case_a, class_="compare-name"),
+            ui.div(f"{year_str} · Higher in {wins_a} of {len(metrics)} indicators", class_="compare-sub"),
+            class_="compare-hero-box case-a col-md-6 col-12",
+        )
+        card_b = ui.div(
+            ui.div("CASE B", class_="compare-tag case-b"),
+            ui.div(case_b, class_="compare-name"),
+            ui.div(f"{year_str} · Higher in {wins_b} of {len(metrics)} indicators", class_="compare-sub"),
+            class_="compare-hero-box case-b col-md-6 col-12",
+        )
+        hero_grid = ui.div(card_a, card_b, class_="row g-3 mb-4")
+
+        labels = [m["label"] for m in metrics_summary]
+        vals_a = [round(m["val_a"], 3) for m in metrics_summary]
+        vals_b = [round(m["val_b"], 3) for m in metrics_summary]
+
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            name=f"Case A: {case_a}",
+            x=labels,
+            y=vals_a,
+            marker_color="#0021A5",
+            text=[f"{v:.2f}" for v in vals_a],
+            textposition="outside",
+        ))
+        fig.add_trace(go.Bar(
+            name=f"Case B: {case_b}",
+            x=labels,
+            y=vals_b,
+            marker_color="#FA4616",
+            text=[f"{v:.2f}" for v in vals_b],
+            textposition="outside",
+        ))
+        fig.update_layout(
+            barmode="group",
+            template="plotly_white",
+            title=dict(
+                text=f"Comparative Profile: {case_a} vs. {case_b} ({year_str})",
+                font=dict(family="'Plus Jakarta Sans', system-ui, sans-serif", size=15, color="#0a101d"),
+            ),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            font=dict(family="'Plus Jakarta Sans', system-ui, sans-serif", size=12, color="#0a101d"),
+            margin=dict(l=40, r=20, t=60, b=40),
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            hovermode="x unified",
+            height=360,
+        )
+        fig.update_xaxes(showgrid=True, gridcolor="#edf2ff")
+        fig.update_yaxes(showgrid=True, gridcolor="#edf2ff")
+        chart_ui = ui.div(render_plotly_html(fig), style="margin-bottom: 24px;")
+
+        table_rows = []
+        for m in metrics_summary:
+            if m["leader"] == "A":
+                badge = f'<span class="delta-badge adv-a">▲ {case_a} (+{abs(m["delta"]):.2f})</span>'
+            elif m["leader"] == "B":
+                badge = f'<span class="delta-badge adv-b">▲ {case_b} (+{abs(m["delta"]):.2f})</span>'
+            else:
+                badge = '<span class="delta-badge neutral">Equal</span>'
+
+            sign = "+" if m["delta"] > 0 else ""
+            tr = f"""
+            <tr>
+                <td><strong>{m['label']}</strong></td>
+                <td style="color: #0021A5; font-weight: 700;">{m['val_a']:.2f}</td>
+                <td style="color: #FA4616; font-weight: 700;">{m['val_b']:.2f}</td>
+                <td style="font-family: monospace; font-weight: 600;">{sign}{m['delta']:.2f} <span style="color: #64748b; font-size: 11px;">({sign}{m['pct_diff']:.1f}%)</span></td>
+                <td>{badge}</td>
+            </tr>
+            """
+            table_rows.append(tr)
+
+        table_html = f"""
+        <div class="compare-table-wrapper">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Indicator / Variable</th>
+                        <th style="color: #0021A5;">Case A: {case_a}</th>
+                        <th style="color: #FA4616;">Case B: {case_b}</th>
+                        <th>Difference Delta (Δ)</th>
+                        <th>Leading Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(table_rows)}
+                </tbody>
+            </table>
+        </div>
+        """
+
+        essay_text = generate_comparative_synthesis(case_a, case_b, year_str, metrics_summary)
+        synthesis_ui = ui.div(
+            ui.div("🎓 Pedagogical Essay Takeaway & Model Comparative Paragraph", class_="compare-synthesis-title"),
+            ui.HTML(f"<p style='color: #1e293b; font-size: 13.5px; line-height: 1.65; margin: 0;'>{essay_text}</p>"),
+            class_="compare-synthesis-card",
+        )
+
+        return ui.div(
+            hero_grid,
+            chart_ui,
+            ui.HTML(table_html),
+            synthesis_ui,
+        )
 
     @output
     @render.data_frame
@@ -1860,6 +2362,13 @@ def server(input, output, session):
     @output
     @render.ui
     def storymap_header_title():
+        mode = input.storymap_view_mode() if hasattr(input, "storymap_view_mode") else "interactive"
+        if mode == "interactive":
+            return ui.div(
+                ui.span("UF NATIVE SPATIAL LAB", class_="storymap-pill"),
+                ui.h2("Spatial Politics & Global Democracy: Interactive StoryMap", class_="uf-card-title", style="margin: 4px 0 0 0; font-size: 20px;"),
+                ui.p("Cinematic multi-chapter narrative mapping US elections, European social trust, and Varieties of Democracy.", class_="uf-card-sub", style="margin: 4px 0 0 0;"),
+            )
         sm = active_storymap()
         return ui.div(
             ui.span("ESRI ArcGIS StoryMap", class_="storymap-pill"),
@@ -1870,6 +2379,18 @@ def server(input, output, session):
     @output
     @render.ui
     def storymap_actions():
+        mode = input.storymap_view_mode() if hasattr(input, "storymap_view_mode") else "interactive"
+        if mode == "interactive":
+            return ui.div(
+                ui.tags.a(
+                    "⛶ Open Full Window",
+                    href="/storymap.html",
+                    target="_blank",
+                    rel="noopener noreferrer",
+                    class_="btn-uf-orange",
+                    style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;",
+                ),
+            )
         sm = active_storymap()
         return ui.div(
             ui.tags.a(
@@ -1885,6 +2406,17 @@ def server(input, output, session):
     @output
     @render.ui
     def storymap_frame():
+        mode = input.storymap_view_mode() if hasattr(input, "storymap_view_mode") else "interactive"
+        if mode == "interactive":
+            return ui.tags.iframe(
+                src="/storymap.html",
+                width="100%",
+                height="840px",
+                frameborder="0",
+                allowfullscreen="true",
+                allow="geolocation",
+                style="border: 1px solid var(--border-subtle); border-radius: 12px; width: 100%; height: 840px; box-shadow: var(--shadow-card);",
+            )
         sm = active_storymap()
         return ui.tags.iframe(
             src=sm["url"],
@@ -1899,6 +2431,26 @@ def server(input, output, session):
     @output
     @render.ui
     def storymap_sidebar_info():
+        mode = input.storymap_view_mode() if hasattr(input, "storymap_view_mode") else "interactive"
+        if mode == "interactive":
+            return ui.div(
+                ui.div(
+                    ui.tags.strong("Story Chapters Included:"),
+                    ui.tags.ul(
+                        ui.tags.li(ui.tags.strong("🇺🇸 Chapter 1: "), "US Civic Turnout & Mail Balloting"),
+                        ui.tags.li(ui.tags.strong("🇪🇺 Chapter 2: "), "European Social Trust & Institutions (ESS)"),
+                        ui.tags.li(ui.tags.strong("🌍 Chapter 3: "), "Varieties of Democracy Global Lab (V-Dem)"),
+                        ui.tags.li(ui.tags.strong("📈 Chapter 4: "), "Global Inequality & Health Well-being"),
+                        style="padding-left: 18px; margin-top: 6px; font-size: 12px; line-height: 1.6; color: var(--ink-secondary);",
+                    ),
+                    style="margin-top: 14px;",
+                ),
+                ui.div(
+                    ui.tags.strong("Interactive Capabilities:"),
+                    ui.p("✨ Autoplay guided tour, 4 live basemaps (Light, Satellite, Dark, Topo), in-map metric toggles, clickable data cards, and full-screen presentation mode.", style="margin-top: 4px; font-size: 12px; color: var(--uf-blue); line-height: 1.5;"),
+                    style="margin-top: 10px; padding: 12px 14px; background: var(--uf-blue-soft); border-radius: 8px; border-left: 3px solid var(--uf-blue);",
+                ),
+            )
         sm = active_storymap()
         return ui.div(
             ui.div(
@@ -2192,16 +2744,16 @@ def server(input, output, session):
         return ui.div(*controls, class_="uf-toolbar")
 
     @output
-    @render_widget
+    @render.ui
     def upload_plot():
         try:
             df = uploaded_filtered_dataset()
         except Exception as exc:
-            return px.scatter(title=f"Notice: {exc}")
+            return render_plotly_html(px.scatter(title=f"Notice: {exc}"))
         if df is None:
-            return px.scatter(title="Upload a CSV file to render visualization.")
+            return render_plotly_html(px.scatter(title="Upload a CSV file to render visualization."))
         if df.empty:
-            return px.scatter(title="No records match current filter criteria.")
+            return render_plotly_html(px.scatter(title="No records match current filter criteria."))
 
         chart = input.upload_chart_type()
         discrete_cols, numeric_cols = get_column_types(df)
@@ -2380,7 +2932,7 @@ def server(input, output, session):
         )
         fig.update_xaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
         fig.update_yaxes(showgrid=True, gridcolor="#edf2ff", linecolor="#dbeafe")
-        return fig
+        return render_plotly_html(fig)
 
 
 app = App(app_ui, server, static_assets=BASE_DIR / "www")

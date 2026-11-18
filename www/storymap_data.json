@@ -1,0 +1,2691 @@
+{
+  "us": {
+    "coords": {
+      "Florida": [
+        27.9944,
+        -81.7603
+      ],
+      "Georgia": [
+        32.1656,
+        -82.9001
+      ],
+      "Ohio": [
+        40.4173,
+        -82.9071
+      ],
+      "Michigan": [
+        44.3148,
+        -85.6024
+      ],
+      "California": [
+        36.7783,
+        -119.4179
+      ],
+      "Texas": [
+        31.9686,
+        -99.9018
+      ]
+    },
+    "data": {
+      "Florida": {
+        "2020": {
+          "turnout": 64.7,
+          "young_turnout": 29.2,
+          "mail_ballot": 42.1,
+          "region": "South"
+        },
+        "2022": {
+          "turnout": 54.7,
+          "young_turnout": 27.6,
+          "mail_ballot": 40.5,
+          "region": "South"
+        },
+        "2024": {
+          "turnout": 65.1,
+          "young_turnout": 31.8,
+          "mail_ballot": 44.6,
+          "region": "South"
+        }
+      },
+      "Georgia": {
+        "2020": {
+          "turnout": 65.3,
+          "young_turnout": 28.8,
+          "mail_ballot": 41.0,
+          "region": "South"
+        },
+        "2022": {
+          "turnout": 55.6,
+          "young_turnout": 26.4,
+          "mail_ballot": 39.9,
+          "region": "South"
+        },
+        "2024": {
+          "turnout": 61.2,
+          "young_turnout": 29.4,
+          "mail_ballot": 42.5,
+          "region": "South"
+        }
+      },
+      "Ohio": {
+        "2020": {
+          "turnout": 59.4,
+          "young_turnout": 26.9,
+          "mail_ballot": 39.5,
+          "region": "Midwest"
+        },
+        "2022": {
+          "turnout": 52.1,
+          "young_turnout": 24.8,
+          "mail_ballot": 37.4,
+          "region": "Midwest"
+        },
+        "2024": {
+          "turnout": 59.2,
+          "young_turnout": 28.1,
+          "mail_ballot": 40.7,
+          "region": "Midwest"
+        }
+      },
+      "Michigan": {
+        "2020": {
+          "turnout": 66.0,
+          "young_turnout": 31.1,
+          "mail_ballot": 43.7,
+          "region": "Midwest"
+        },
+        "2022": {
+          "turnout": 51.8,
+          "young_turnout": 28.2,
+          "mail_ballot": 41.0,
+          "region": "Midwest"
+        },
+        "2024": {
+          "turnout": 63.8,
+          "young_turnout": 30.7,
+          "mail_ballot": 43.4,
+          "region": "Midwest"
+        }
+      },
+      "California": {
+        "2020": {
+          "turnout": 64.7,
+          "young_turnout": 30.4,
+          "mail_ballot": 44.2,
+          "region": "West"
+        },
+        "2022": {
+          "turnout": 50.2,
+          "young_turnout": 28.9,
+          "mail_ballot": 43.0,
+          "region": "West"
+        },
+        "2024": {
+          "turnout": 58.1,
+          "young_turnout": 31.2,
+          "mail_ballot": 44.1,
+          "region": "West"
+        }
+      },
+      "Texas": {
+        "2020": {
+          "turnout": 60.4,
+          "young_turnout": 25.8,
+          "mail_ballot": 39.1,
+          "region": "South"
+        },
+        "2022": {
+          "turnout": 46.5,
+          "young_turnout": 23.1,
+          "mail_ballot": 36.5,
+          "region": "South"
+        },
+        "2024": {
+          "turnout": 58.8,
+          "young_turnout": 27.7,
+          "mail_ballot": 41.2,
+          "region": "South"
+        }
+      }
+    }
+  },
+  "ess": {
+    "coords": {
+      "Sweden": [
+        60.1282,
+        18.6435
+      ],
+      "Norway": [
+        60.472,
+        8.4689
+      ],
+      "Finland": [
+        61.9241,
+        25.7482
+      ],
+      "Germany": [
+        51.1657,
+        10.4515
+      ],
+      "France": [
+        46.2276,
+        2.2137
+      ],
+      "United Kingdom": [
+        55.3781,
+        -3.436
+      ],
+      "Spain": [
+        40.4637,
+        -3.7492
+      ],
+      "Italy": [
+        41.8719,
+        12.5674
+      ],
+      "Poland": [
+        51.9194,
+        19.1451
+      ],
+      "Hungary": [
+        47.1625,
+        19.5033
+      ],
+      "Greece": [
+        39.0742,
+        21.8243
+      ],
+      "Netherlands": [
+        52.1326,
+        5.2913
+      ],
+      "Portugal": [
+        39.3999,
+        -8.2245
+      ],
+      "Ireland": [
+        53.1424,
+        -7.6921
+      ],
+      "Czechia": [
+        49.8175,
+        15.473
+      ]
+    },
+    "data": {
+      "Sweden": {
+        "2018": {
+          "trust": 6.8,
+          "parliament": 6.1,
+          "democracy": 7.0,
+          "immigrant": 7.2
+        },
+        "2020": {
+          "trust": 6.9,
+          "parliament": 6.3,
+          "democracy": 7.1,
+          "immigrant": 7.3
+        },
+        "2022": {
+          "trust": 6.7,
+          "parliament": 5.9,
+          "democracy": 6.8,
+          "immigrant": 7.1
+        }
+      },
+      "Norway": {
+        "2018": {
+          "trust": 7.1,
+          "parliament": 6.6,
+          "democracy": 7.4,
+          "immigrant": 7.0
+        },
+        "2020": {
+          "trust": 7.2,
+          "parliament": 6.7,
+          "democracy": 7.5,
+          "immigrant": 7.1
+        },
+        "2022": {
+          "trust": 7.0,
+          "parliament": 6.4,
+          "democracy": 7.2,
+          "immigrant": 6.9
+        }
+      },
+      "Finland": {
+        "2018": {
+          "trust": 7.3,
+          "parliament": 6.8,
+          "democracy": 7.5,
+          "immigrant": 6.9
+        },
+        "2020": {
+          "trust": 7.4,
+          "parliament": 6.9,
+          "democracy": 7.6,
+          "immigrant": 7.0
+        },
+        "2022": {
+          "trust": 7.2,
+          "parliament": 6.6,
+          "democracy": 7.3,
+          "immigrant": 6.8
+        }
+      },
+      "Germany": {
+        "2018": {
+          "trust": 5.8,
+          "parliament": 5.2,
+          "democracy": 6.2,
+          "immigrant": 6.3
+        },
+        "2020": {
+          "trust": 5.9,
+          "parliament": 5.4,
+          "democracy": 6.4,
+          "immigrant": 6.4
+        },
+        "2022": {
+          "trust": 5.7,
+          "parliament": 5.0,
+          "democracy": 6.0,
+          "immigrant": 6.2
+        }
+      },
+      "France": {
+        "2018": {
+          "trust": 5.0,
+          "parliament": 4.3,
+          "democracy": 4.8,
+          "immigrant": 5.6
+        },
+        "2020": {
+          "trust": 5.1,
+          "parliament": 4.5,
+          "democracy": 5.0,
+          "immigrant": 5.7
+        },
+        "2022": {
+          "trust": 4.9,
+          "parliament": 4.1,
+          "democracy": 4.6,
+          "immigrant": 5.5
+        }
+      },
+      "United Kingdom": {
+        "2018": {
+          "trust": 5.6,
+          "parliament": 4.8,
+          "democracy": 5.5,
+          "immigrant": 6.1
+        },
+        "2020": {
+          "trust": 5.5,
+          "parliament": 4.6,
+          "democracy": 5.3,
+          "immigrant": 6.2
+        },
+        "2022": {
+          "trust": 5.4,
+          "parliament": 4.4,
+          "democracy": 5.1,
+          "immigrant": 6.0
+        }
+      },
+      "Spain": {
+        "2018": {
+          "trust": 5.2,
+          "parliament": 4.1,
+          "democracy": 4.6,
+          "immigrant": 6.4
+        },
+        "2020": {
+          "trust": 5.3,
+          "parliament": 4.3,
+          "democracy": 4.8,
+          "immigrant": 6.5
+        },
+        "2022": {
+          "trust": 5.1,
+          "parliament": 3.9,
+          "democracy": 4.4,
+          "immigrant": 6.3
+        }
+      },
+      "Italy": {
+        "2018": {
+          "trust": 4.8,
+          "parliament": 3.8,
+          "democracy": 4.4,
+          "immigrant": 5.1
+        },
+        "2020": {
+          "trust": 4.9,
+          "parliament": 3.9,
+          "democracy": 4.5,
+          "immigrant": 5.2
+        },
+        "2022": {
+          "trust": 4.7,
+          "parliament": 3.6,
+          "democracy": 4.2,
+          "immigrant": 5.0
+        }
+      },
+      "Poland": {
+        "2018": {
+          "trust": 4.4,
+          "parliament": 3.2,
+          "democracy": 3.8,
+          "immigrant": 3.9
+        },
+        "2020": {
+          "trust": 4.5,
+          "parliament": 3.4,
+          "democracy": 3.9,
+          "immigrant": 4.0
+        },
+        "2022": {
+          "trust": 4.3,
+          "parliament": 3.0,
+          "democracy": 3.6,
+          "immigrant": 3.8
+        }
+      },
+      "Hungary": {
+        "2018": {
+          "trust": 4.6,
+          "parliament": 3.7,
+          "democracy": 4.2,
+          "immigrant": 3.4
+        },
+        "2020": {
+          "trust": 4.5,
+          "parliament": 3.8,
+          "democracy": 4.3,
+          "immigrant": 3.5
+        },
+        "2022": {
+          "trust": 4.4,
+          "parliament": 3.5,
+          "democracy": 4.0,
+          "immigrant": 3.3
+        }
+      },
+      "Greece": {
+        "2018": {
+          "trust": 4.1,
+          "parliament": 3.1,
+          "democracy": 3.5,
+          "immigrant": 4.5
+        },
+        "2020": {
+          "trust": 4.2,
+          "parliament": 3.3,
+          "democracy": 3.7,
+          "immigrant": 4.6
+        },
+        "2022": {
+          "trust": 4.0,
+          "parliament": 2.9,
+          "democracy": 3.3,
+          "immigrant": 4.4
+        }
+      },
+      "Netherlands": {
+        "2018": {
+          "trust": 6.4,
+          "parliament": 5.8,
+          "democracy": 6.8,
+          "immigrant": 6.7
+        },
+        "2020": {
+          "trust": 6.5,
+          "parliament": 6.0,
+          "democracy": 7.0,
+          "immigrant": 6.8
+        },
+        "2022": {
+          "trust": 6.3,
+          "parliament": 5.6,
+          "democracy": 6.6,
+          "immigrant": 6.6
+        }
+      },
+      "Portugal": {
+        "2018": {
+          "trust": 4.9,
+          "parliament": 4.5,
+          "democracy": 5.0,
+          "immigrant": 6.0
+        },
+        "2020": {
+          "trust": 5.0,
+          "parliament": 4.7,
+          "democracy": 5.2,
+          "immigrant": 6.1
+        },
+        "2022": {
+          "trust": 4.8,
+          "parliament": 4.3,
+          "democracy": 4.8,
+          "immigrant": 5.9
+        }
+      },
+      "Ireland": {
+        "2018": {
+          "trust": 6.1,
+          "parliament": 5.4,
+          "democracy": 6.3,
+          "immigrant": 6.5
+        },
+        "2020": {
+          "trust": 6.2,
+          "parliament": 5.6,
+          "democracy": 6.5,
+          "immigrant": 6.6
+        },
+        "2022": {
+          "trust": 6.0,
+          "parliament": 5.2,
+          "democracy": 6.1,
+          "immigrant": 6.4
+        }
+      },
+      "Czechia": {
+        "2018": {
+          "trust": 5.3,
+          "parliament": 4.2,
+          "democracy": 4.9,
+          "immigrant": 4.2
+        },
+        "2020": {
+          "trust": 5.4,
+          "parliament": 4.4,
+          "democracy": 5.1,
+          "immigrant": 4.3
+        },
+        "2022": {
+          "trust": 5.2,
+          "parliament": 4.0,
+          "democracy": 4.7,
+          "immigrant": 4.1
+        }
+      }
+    }
+  },
+  "vdem": {
+    "centroids": {
+      "USA": [
+        37.0902,
+        -95.7129
+      ],
+      "CAN": [
+        56.1304,
+        -106.3468
+      ],
+      "MEX": [
+        23.6345,
+        -102.5528
+      ],
+      "BRA": [
+        -14.235,
+        -51.9253
+      ],
+      "ARG": [
+        -38.4161,
+        -63.6167
+      ],
+      "CHL": [
+        -35.6751,
+        -71.543
+      ],
+      "COL": [
+        4.5709,
+        -74.2973
+      ],
+      "PER": [
+        -9.19,
+        -75.0152
+      ],
+      "GBR": [
+        55.3781,
+        -3.436
+      ],
+      "FRA": [
+        46.2276,
+        2.2137
+      ],
+      "DEU": [
+        51.1657,
+        10.4515
+      ],
+      "ITA": [
+        41.8719,
+        12.5674
+      ],
+      "ESP": [
+        40.4637,
+        -3.7492
+      ],
+      "PRT": [
+        39.3999,
+        -8.2245
+      ],
+      "SWE": [
+        60.1282,
+        18.6435
+      ],
+      "NOR": [
+        60.472,
+        8.4689
+      ],
+      "FIN": [
+        61.9241,
+        25.7482
+      ],
+      "DNK": [
+        56.2639,
+        9.5018
+      ],
+      "NLD": [
+        52.1326,
+        5.2913
+      ],
+      "BEL": [
+        50.5039,
+        4.4699
+      ],
+      "CHE": [
+        46.8182,
+        8.2275
+      ],
+      "AUT": [
+        47.5162,
+        14.5501
+      ],
+      "POL": [
+        51.9194,
+        19.1451
+      ],
+      "HUN": [
+        47.1625,
+        19.5033
+      ],
+      "GRC": [
+        39.0742,
+        21.8243
+      ],
+      "ROU": [
+        45.9432,
+        24.9668
+      ],
+      "UKR": [
+        48.3794,
+        31.1656
+      ],
+      "RUS": [
+        61.524,
+        105.3188
+      ],
+      "TUR": [
+        38.9637,
+        35.2433
+      ],
+      "ISR": [
+        31.0461,
+        34.8516
+      ],
+      "SAU": [
+        23.8859,
+        45.0792
+      ],
+      "IRN": [
+        32.4279,
+        53.688
+      ],
+      "EGY": [
+        26.8206,
+        30.8025
+      ],
+      "ZAF": [
+        -30.5595,
+        22.9375
+      ],
+      "NGA": [
+        9.082,
+        8.6753
+      ],
+      "KEN": [
+        -0.0236,
+        37.9062
+      ],
+      "GHA": [
+        7.9465,
+        -1.0232
+      ],
+      "IND": [
+        20.5937,
+        78.9629
+      ],
+      "PAK": [
+        30.3753,
+        69.3451
+      ],
+      "BGD": [
+        23.685,
+        90.3563
+      ],
+      "IDN": [
+        -0.7893,
+        113.9213
+      ],
+      "JPN": [
+        36.2048,
+        138.2529
+      ],
+      "KOR": [
+        35.9078,
+        127.7669
+      ],
+      "CHN": [
+        35.8617,
+        104.1954
+      ],
+      "AUS": [
+        -25.2744,
+        133.7751
+      ],
+      "NZL": [
+        -40.9006,
+        174.886
+      ],
+      "TWN": [
+        23.6978,
+        120.9605
+      ],
+      "PHL": [
+        12.8797,
+        121.774
+      ],
+      "THA": [
+        15.87,
+        100.9925
+      ],
+      "VNM": [
+        14.0583,
+        108.2772
+      ],
+      "SGP": [
+        1.3521,
+        103.8198
+      ],
+      "MYS": [
+        4.2105,
+        101.9758
+      ]
+    },
+    "data": {
+      "MEX": {
+        "name": "Mexico",
+        "libdem": 0.246,
+        "polyarchy": 0.496,
+        "rule": 0.388,
+        "expression": 0.645,
+        "clean_gov": 0.419,
+        "academ": 0.703
+      },
+      "SUR": {
+        "name": "Suriname",
+        "libdem": 0.634,
+        "polyarchy": 0.767,
+        "rule": 0.828,
+        "expression": 0.888,
+        "clean_gov": 0.86,
+        "academ": 0.812
+      },
+      "SWE": {
+        "name": "Sweden",
+        "libdem": 0.846,
+        "polyarchy": 0.881,
+        "rule": 0.99,
+        "expression": 0.946,
+        "clean_gov": 0.991,
+        "academ": 0.942
+      },
+      "CHE": {
+        "name": "Switzerland",
+        "libdem": 0.843,
+        "polyarchy": 0.882,
+        "rule": 0.995,
+        "expression": 0.967,
+        "clean_gov": 0.977,
+        "academ": 0.824
+      },
+      "GHA": {
+        "name": "Ghana",
+        "libdem": 0.56,
+        "polyarchy": 0.665,
+        "rule": 0.538,
+        "expression": 0.857,
+        "clean_gov": 0.362,
+        "academ": 0.784
+      },
+      "ZAF": {
+        "name": "South Africa",
+        "libdem": 0.648,
+        "polyarchy": 0.734,
+        "rule": 0.709,
+        "expression": 0.835,
+        "clean_gov": 0.483,
+        "academ": 0.831
+      },
+      "JPN": {
+        "name": "Japan",
+        "libdem": 0.737,
+        "polyarchy": 0.822,
+        "rule": 0.956,
+        "expression": 0.849,
+        "clean_gov": 0.95,
+        "academ": 0.76
+      },
+      "MMR": {
+        "name": "Burma/Myanmar",
+        "libdem": 0.015,
+        "polyarchy": 0.08,
+        "rule": 0.061,
+        "expression": 0.037,
+        "clean_gov": 0.141,
+        "academ": 0.023
+      },
+      "RUS": {
+        "name": "Russia",
+        "libdem": 0.057,
+        "polyarchy": 0.171,
+        "rule": 0.12,
+        "expression": 0.08,
+        "clean_gov": 0.205,
+        "academ": 0.21
+      },
+      "ALB": {
+        "name": "Albania",
+        "libdem": 0.398,
+        "polyarchy": 0.51,
+        "rule": 0.583,
+        "expression": 0.693,
+        "clean_gov": 0.373,
+        "academ": 0.794
+      },
+      "EGY": {
+        "name": "Egypt",
+        "libdem": 0.123,
+        "polyarchy": 0.186,
+        "rule": 0.34,
+        "expression": 0.178,
+        "clean_gov": 0.271,
+        "academ": 0.083
+      },
+      "YEM": {
+        "name": "Yemen",
+        "libdem": 0.047,
+        "polyarchy": 0.126,
+        "rule": 0.061,
+        "expression": 0.243,
+        "clean_gov": 0.09,
+        "academ": 0.275
+      },
+      "COL": {
+        "name": "Colombia",
+        "libdem": 0.554,
+        "polyarchy": 0.698,
+        "rule": 0.744,
+        "expression": 0.84,
+        "clean_gov": 0.604,
+        "academ": 0.605
+      },
+      "POL": {
+        "name": "Poland",
+        "libdem": 0.613,
+        "polyarchy": 0.73,
+        "rule": 0.86,
+        "expression": 0.911,
+        "clean_gov": 0.894,
+        "academ": 0.843
+      },
+      "BRA": {
+        "name": "Brazil",
+        "libdem": 0.712,
+        "polyarchy": 0.799,
+        "rule": 0.838,
+        "expression": 0.923,
+        "clean_gov": 0.562,
+        "academ": 0.849
+      },
+      "USA": {
+        "name": "United States of America",
+        "libdem": 0.751,
+        "polyarchy": 0.843,
+        "rule": 0.963,
+        "expression": 0.904,
+        "clean_gov": 0.949,
+        "academ": 0.677
+      },
+      "PRT": {
+        "name": "Portugal",
+        "libdem": 0.754,
+        "polyarchy": 0.836,
+        "rule": 0.912,
+        "expression": 0.899,
+        "clean_gov": 0.834,
+        "academ": 0.715
+      },
+      "SLV": {
+        "name": "El Salvador",
+        "libdem": 0.09,
+        "polyarchy": 0.335,
+        "rule": 0.09,
+        "expression": 0.392,
+        "clean_gov": 0.316,
+        "academ": 0.206
+      },
+      "BGD": {
+        "name": "Bangladesh",
+        "libdem": 0.097,
+        "polyarchy": 0.225,
+        "rule": 0.143,
+        "expression": 0.444,
+        "clean_gov": 0.078,
+        "academ": 0.286
+      },
+      "BOL": {
+        "name": "Bolivia",
+        "libdem": 0.31,
+        "polyarchy": 0.577,
+        "rule": 0.332,
+        "expression": 0.726,
+        "clean_gov": 0.346,
+        "academ": 0.68
+      },
+      "HTI": {
+        "name": "Haiti",
+        "libdem": 0.101,
+        "polyarchy": 0.237,
+        "rule": 0.179,
+        "expression": 0.79,
+        "clean_gov": 0.214,
+        "academ": 0.65
+      },
+      "HND": {
+        "name": "Honduras",
+        "libdem": 0.383,
+        "polyarchy": 0.538,
+        "rule": 0.504,
+        "expression": 0.867,
+        "clean_gov": 0.251,
+        "academ": 0.919
+      },
+      "MLI": {
+        "name": "Mali",
+        "libdem": 0.141,
+        "polyarchy": 0.192,
+        "rule": 0.328,
+        "expression": 0.589,
+        "clean_gov": 0.282,
+        "academ": 0.346
+      },
+      "PAK": {
+        "name": "Pakistan",
+        "libdem": 0.193,
+        "polyarchy": 0.313,
+        "rule": 0.282,
+        "expression": 0.559,
+        "clean_gov": 0.182,
+        "academ": 0.344
+      },
+      "PER": {
+        "name": "Peru",
+        "libdem": 0.501,
+        "polyarchy": 0.642,
+        "rule": 0.657,
+        "expression": 0.739,
+        "clean_gov": 0.381,
+        "academ": 0.858
+      },
+      "SEN": {
+        "name": "Senegal",
+        "libdem": 0.461,
+        "polyarchy": 0.605,
+        "rule": 0.688,
+        "expression": 0.82,
+        "clean_gov": 0.596,
+        "academ": 0.829
+      },
+      "SSD": {
+        "name": "South Sudan",
+        "libdem": 0.071,
+        "polyarchy": 0.154,
+        "rule": 0.115,
+        "expression": 0.182,
+        "clean_gov": 0.136,
+        "academ": 0.077
+      },
+      "SDN": {
+        "name": "Sudan",
+        "libdem": 0.03,
+        "polyarchy": 0.137,
+        "rule": 0.09,
+        "expression": 0.268,
+        "clean_gov": 0.161,
+        "academ": 0.213
+      },
+      "VNM": {
+        "name": "Vietnam",
+        "libdem": 0.109,
+        "polyarchy": 0.159,
+        "rule": 0.347,
+        "expression": 0.12,
+        "clean_gov": 0.513,
+        "academ": 0.269
+      },
+      "AFG": {
+        "name": "Afghanistan",
+        "libdem": 0.014,
+        "polyarchy": 0.08,
+        "rule": 0.089,
+        "expression": 0.08,
+        "clean_gov": 0.319,
+        "academ": 0.099
+      },
+      "ARG": {
+        "name": "Argentina",
+        "libdem": 0.558,
+        "polyarchy": 0.721,
+        "rule": 0.622,
+        "expression": 0.766,
+        "clean_gov": 0.61,
+        "academ": 0.702
+      },
+      "ETH": {
+        "name": "Ethiopia",
+        "libdem": 0.093,
+        "polyarchy": 0.26,
+        "rule": 0.319,
+        "expression": 0.245,
+        "clean_gov": 0.48,
+        "academ": 0.267
+      },
+      "IND": {
+        "name": "India",
+        "libdem": 0.281,
+        "polyarchy": 0.381,
+        "rule": 0.411,
+        "expression": 0.477,
+        "clean_gov": 0.319,
+        "academ": 0.147
+      },
+      "KEN": {
+        "name": "Kenya",
+        "libdem": 0.437,
+        "polyarchy": 0.557,
+        "rule": 0.628,
+        "expression": 0.897,
+        "clean_gov": 0.444,
+        "academ": 0.835
+      },
+      "PRK": {
+        "name": "North Korea",
+        "libdem": 0.014,
+        "polyarchy": 0.084,
+        "rule": 0.033,
+        "expression": 0.013,
+        "clean_gov": 0.33,
+        "academ": 0.018
+      },
+      "KOR": {
+        "name": "South Korea",
+        "libdem": 0.627,
+        "polyarchy": 0.724,
+        "rule": 0.877,
+        "expression": 0.782,
+        "clean_gov": 0.844,
+        "academ": 0.827
+      },
+      "XKX": {
+        "name": "Kosovo",
+        "libdem": 0.471,
+        "polyarchy": 0.648,
+        "rule": 0.678,
+        "expression": 0.755,
+        "clean_gov": 0.728,
+        "academ": 0.821
+      },
+      "LBN": {
+        "name": "Lebanon",
+        "libdem": 0.226,
+        "polyarchy": 0.347,
+        "rule": 0.258,
+        "expression": 0.726,
+        "clean_gov": 0.158,
+        "academ": 0.588
+      },
+      "NGA": {
+        "name": "Nigeria",
+        "libdem": 0.314,
+        "polyarchy": 0.499,
+        "rule": 0.238,
+        "expression": 0.893,
+        "clean_gov": 0.068,
+        "academ": 0.863
+      },
+      "PHL": {
+        "name": "Philippines",
+        "libdem": 0.301,
+        "polyarchy": 0.411,
+        "rule": 0.382,
+        "expression": 0.676,
+        "clean_gov": 0.163,
+        "academ": 0.659
+      },
+      "TZA": {
+        "name": "Tanzania",
+        "libdem": 0.357,
+        "polyarchy": 0.413,
+        "rule": 0.783,
+        "expression": 0.683,
+        "clean_gov": 0.719,
+        "academ": 0.596
+      },
+      "TWN": {
+        "name": "Taiwan",
+        "libdem": 0.707,
+        "polyarchy": 0.804,
+        "rule": 0.929,
+        "expression": 0.851,
+        "clean_gov": 0.78,
+        "academ": 0.83
+      },
+      "THA": {
+        "name": "Thailand",
+        "libdem": 0.306,
+        "polyarchy": 0.41,
+        "rule": 0.435,
+        "expression": 0.582,
+        "clean_gov": 0.365,
+        "academ": 0.444
+      },
+      "UGA": {
+        "name": "Uganda",
+        "libdem": 0.168,
+        "polyarchy": 0.261,
+        "rule": 0.266,
+        "expression": 0.443,
+        "clean_gov": 0.156,
+        "academ": 0.375
+      },
+      "VEN": {
+        "name": "Venezuela",
+        "libdem": 0.046,
+        "polyarchy": 0.196,
+        "rule": 0.009,
+        "expression": 0.211,
+        "clean_gov": 0.03,
+        "academ": 0.176
+      },
+      "BEN": {
+        "name": "Benin",
+        "libdem": 0.323,
+        "polyarchy": 0.491,
+        "rule": 0.778,
+        "expression": 0.686,
+        "clean_gov": 0.809,
+        "academ": 0.748
+      },
+      "BTN": {
+        "name": "Bhutan",
+        "libdem": 0.457,
+        "polyarchy": 0.565,
+        "rule": 0.871,
+        "expression": 0.704,
+        "clean_gov": 0.852,
+        "academ": 0.425
+      },
+      "BFA": {
+        "name": "Burkina Faso",
+        "libdem": 0.126,
+        "polyarchy": 0.154,
+        "rule": 0.536,
+        "expression": 0.348,
+        "clean_gov": 0.616,
+        "academ": 0.84
+      },
+      "KHM": {
+        "name": "Cambodia",
+        "libdem": 0.048,
+        "polyarchy": 0.184,
+        "rule": 0.065,
+        "expression": 0.162,
+        "clean_gov": 0.096,
+        "academ": 0.212
+      },
+      "IDN": {
+        "name": "Indonesia",
+        "libdem": 0.332,
+        "polyarchy": 0.496,
+        "rule": 0.398,
+        "expression": 0.741,
+        "clean_gov": 0.233,
+        "academ": 0.436
+      },
+      "MOZ": {
+        "name": "Mozambique",
+        "libdem": 0.189,
+        "polyarchy": 0.31,
+        "rule": 0.295,
+        "expression": 0.52,
+        "clean_gov": 0.302,
+        "academ": 0.41
+      },
+      "NPL": {
+        "name": "Nepal",
+        "libdem": 0.52,
+        "polyarchy": 0.669,
+        "rule": 0.613,
+        "expression": 0.832,
+        "clean_gov": 0.378,
+        "academ": 0.817
+      },
+      "NIC": {
+        "name": "Nicaragua",
+        "libdem": 0.02,
+        "polyarchy": 0.151,
+        "rule": 0.007,
+        "expression": 0.022,
+        "clean_gov": 0.058,
+        "academ": 0.019
+      },
+      "NER": {
+        "name": "Niger",
+        "libdem": 0.182,
+        "polyarchy": 0.237,
+        "rule": 0.625,
+        "expression": 0.749,
+        "clean_gov": 0.43,
+        "academ": 0.767
+      },
+      "ZMB": {
+        "name": "Zambia",
+        "libdem": 0.39,
+        "polyarchy": 0.512,
+        "rule": 0.682,
+        "expression": 0.784,
+        "clean_gov": 0.649,
+        "academ": 0.745
+      },
+      "ZWE": {
+        "name": "Zimbabwe",
+        "libdem": 0.156,
+        "polyarchy": 0.272,
+        "rule": 0.195,
+        "expression": 0.44,
+        "clean_gov": 0.176,
+        "academ": 0.161
+      },
+      "GIN": {
+        "name": "Guinea",
+        "libdem": 0.075,
+        "polyarchy": 0.159,
+        "rule": 0.121,
+        "expression": 0.539,
+        "clean_gov": 0.138,
+        "academ": 0.286
+      },
+      "CIV": {
+        "name": "Ivory Coast",
+        "libdem": 0.248,
+        "polyarchy": 0.429,
+        "rule": 0.411,
+        "expression": 0.653,
+        "clean_gov": 0.401,
+        "academ": 0.656
+      },
+      "MRT": {
+        "name": "Mauritania",
+        "libdem": 0.136,
+        "polyarchy": 0.337,
+        "rule": 0.147,
+        "expression": 0.646,
+        "clean_gov": 0.147,
+        "academ": 0.216
+      },
+      "CAN": {
+        "name": "Canada",
+        "libdem": 0.744,
+        "polyarchy": 0.841,
+        "rule": 0.964,
+        "expression": 0.941,
+        "clean_gov": 0.97,
+        "academ": 0.852
+      },
+      "AUS": {
+        "name": "Australia",
+        "libdem": 0.796,
+        "polyarchy": 0.848,
+        "rule": 0.99,
+        "expression": 0.923,
+        "clean_gov": 0.971,
+        "academ": 0.883
+      },
+      "BWA": {
+        "name": "Botswana",
+        "libdem": 0.47,
+        "polyarchy": 0.595,
+        "rule": 0.794,
+        "expression": 0.794,
+        "clean_gov": 0.758,
+        "academ": 0.89
+      },
+      "BDI": {
+        "name": "Burundi",
+        "libdem": 0.062,
+        "polyarchy": 0.178,
+        "rule": 0.103,
+        "expression": 0.158,
+        "clean_gov": 0.173,
+        "academ": 0.201
+      },
+      "CPV": {
+        "name": "Cape Verde",
+        "libdem": 0.642,
+        "polyarchy": 0.752,
+        "rule": 0.808,
+        "expression": 0.858,
+        "clean_gov": 0.739,
+        "academ": 0.866
+      },
+      "CAF": {
+        "name": "Central African Republic",
+        "libdem": 0.097,
+        "polyarchy": 0.299,
+        "rule": 0.099,
+        "expression": 0.589,
+        "clean_gov": 0.149,
+        "academ": 0.342
+      },
+      "CHL": {
+        "name": "Chile",
+        "libdem": 0.786,
+        "polyarchy": 0.845,
+        "rule": 0.948,
+        "expression": 0.928,
+        "clean_gov": 0.925,
+        "academ": 0.922
+      },
+      "CRI": {
+        "name": "Costa Rica",
+        "libdem": 0.809,
+        "polyarchy": 0.862,
+        "rule": 0.935,
+        "expression": 0.915,
+        "clean_gov": 0.794,
+        "academ": 0.915
+      },
+      "TLS": {
+        "name": "Timor-Leste",
+        "libdem": 0.545,
+        "polyarchy": 0.734,
+        "rule": 0.725,
+        "expression": 0.837,
+        "clean_gov": 0.779,
+        "academ": 0.725
+      },
+      "ECU": {
+        "name": "Ecuador",
+        "libdem": 0.443,
+        "polyarchy": 0.641,
+        "rule": 0.43,
+        "expression": 0.742,
+        "clean_gov": 0.345,
+        "academ": 0.731
+      },
+      "FRA": {
+        "name": "France",
+        "libdem": 0.8,
+        "polyarchy": 0.864,
+        "rule": 0.967,
+        "expression": 0.959,
+        "clean_gov": 0.951,
+        "academ": 0.876
+      },
+      "DEU": {
+        "name": "Germany",
+        "libdem": 0.778,
+        "polyarchy": 0.825,
+        "rule": 0.991,
+        "expression": 0.92,
+        "clean_gov": 0.976,
+        "academ": 0.88
+      },
+      "GTM": {
+        "name": "Guatemala",
+        "libdem": 0.492,
+        "polyarchy": 0.609,
+        "rule": 0.657,
+        "expression": 0.804,
+        "clean_gov": 0.309,
+        "academ": 0.668
+      },
+      "IRN": {
+        "name": "Iran",
+        "libdem": 0.088,
+        "polyarchy": 0.166,
+        "rule": 0.209,
+        "expression": 0.23,
+        "clean_gov": 0.217,
+        "academ": 0.145
+      },
+      "IRQ": {
+        "name": "Iraq",
+        "libdem": 0.21,
+        "polyarchy": 0.361,
+        "rule": 0.223,
+        "expression": 0.533,
+        "clean_gov": 0.15,
+        "academ": 0.412
+      },
+      "IRL": {
+        "name": "Ireland",
+        "libdem": 0.83,
+        "polyarchy": 0.895,
+        "rule": 0.983,
+        "expression": 0.974,
+        "clean_gov": 0.968,
+        "academ": 0.922
+      },
+      "ITA": {
+        "name": "Italy",
+        "libdem": 0.687,
+        "polyarchy": 0.784,
+        "rule": 0.874,
+        "expression": 0.835,
+        "clean_gov": 0.818,
+        "academ": 0.822
+      },
+      "JOR": {
+        "name": "Jordan",
+        "libdem": 0.27,
+        "polyarchy": 0.274,
+        "rule": 0.764,
+        "expression": 0.575,
+        "clean_gov": 0.57,
+        "academ": 0.194
+      },
+      "LVA": {
+        "name": "Latvia",
+        "libdem": 0.759,
+        "polyarchy": 0.834,
+        "rule": 0.972,
+        "expression": 0.932,
+        "clean_gov": 0.929,
+        "academ": 0.914
+      },
+      "LSO": {
+        "name": "Lesotho",
+        "libdem": 0.507,
+        "polyarchy": 0.652,
+        "rule": 0.672,
+        "expression": 0.708,
+        "clean_gov": 0.446,
+        "academ": 0.697
+      },
+      "LBR": {
+        "name": "Liberia",
+        "libdem": 0.398,
+        "polyarchy": 0.61,
+        "rule": 0.35,
+        "expression": 0.836,
+        "clean_gov": 0.123,
+        "academ": 0.609
+      },
+      "MWI": {
+        "name": "Malawi",
+        "libdem": 0.472,
+        "polyarchy": 0.563,
+        "rule": 0.571,
+        "expression": 0.784,
+        "clean_gov": 0.279,
+        "academ": 0.796
+      },
+      "MDV": {
+        "name": "Maldives",
+        "libdem": 0.435,
+        "polyarchy": 0.577,
+        "rule": 0.713,
+        "expression": 0.738,
+        "clean_gov": 0.589,
+        "academ": 0.639
+      },
+      "MNG": {
+        "name": "Mongolia",
+        "libdem": 0.385,
+        "polyarchy": 0.498,
+        "rule": 0.516,
+        "expression": 0.694,
+        "clean_gov": 0.313,
+        "academ": 0.701
+      },
+      "MAR": {
+        "name": "Morocco",
+        "libdem": 0.252,
+        "polyarchy": 0.261,
+        "rule": 0.535,
+        "expression": 0.595,
+        "clean_gov": 0.336,
+        "academ": 0.542
+      },
+      "NLD": {
+        "name": "Netherlands",
+        "libdem": 0.766,
+        "polyarchy": 0.823,
+        "rule": 0.978,
+        "expression": 0.892,
+        "clean_gov": 0.982,
+        "academ": 0.748
+      },
+      "PAN": {
+        "name": "Panama",
+        "libdem": 0.578,
+        "polyarchy": 0.728,
+        "rule": 0.669,
+        "expression": 0.804,
+        "clean_gov": 0.516,
+        "academ": 0.905
+      },
+      "PNG": {
+        "name": "Papua New Guinea",
+        "libdem": 0.38,
+        "polyarchy": 0.462,
+        "rule": 0.494,
+        "expression": 0.818,
+        "clean_gov": 0.302,
+        "academ": 0.829
+      },
+      "QAT": {
+        "name": "Qatar",
+        "libdem": 0.095,
+        "polyarchy": 0.087,
+        "rule": 0.565,
+        "expression": 0.053,
+        "clean_gov": 0.68,
+        "academ": 0.104
+      },
+      "SLE": {
+        "name": "Sierra Leone",
+        "libdem": 0.363,
+        "polyarchy": 0.471,
+        "rule": 0.558,
+        "expression": 0.823,
+        "clean_gov": 0.429,
+        "academ": 0.849
+      },
+      "ESP": {
+        "name": "Spain",
+        "libdem": 0.743,
+        "polyarchy": 0.826,
+        "rule": 0.956,
+        "expression": 0.85,
+        "clean_gov": 0.902,
+        "academ": 0.877
+      },
+      "SYR": {
+        "name": "Syria",
+        "libdem": 0.054,
+        "polyarchy": 0.143,
+        "rule": 0.144,
+        "expression": 0.07,
+        "clean_gov": 0.203,
+        "academ": 0.182
+      },
+      "TUN": {
+        "name": "Tunisia",
+        "libdem": 0.271,
+        "polyarchy": 0.422,
+        "rule": 0.557,
+        "expression": 0.751,
+        "clean_gov": 0.59,
+        "academ": 0.558
+      },
+      "TUR": {
+        "name": "T\u00fcrkiye",
+        "libdem": 0.109,
+        "polyarchy": 0.289,
+        "rule": 0.169,
+        "expression": 0.183,
+        "clean_gov": 0.2,
+        "academ": 0.108
+      },
+      "UKR": {
+        "name": "Ukraine",
+        "libdem": 0.23,
+        "polyarchy": 0.387,
+        "rule": 0.389,
+        "expression": 0.411,
+        "clean_gov": 0.367,
+        "academ": 0.27
+      },
+      "GBR": {
+        "name": "United Kingdom",
+        "libdem": 0.75,
+        "polyarchy": 0.832,
+        "rule": 0.957,
+        "expression": 0.915,
+        "clean_gov": 0.957,
+        "academ": 0.764
+      },
+      "URY": {
+        "name": "Uruguay",
+        "libdem": 0.768,
+        "polyarchy": 0.846,
+        "rule": 0.945,
+        "expression": 0.913,
+        "clean_gov": 0.949,
+        "academ": 0.894
+      },
+      "DZA": {
+        "name": "Algeria",
+        "libdem": 0.123,
+        "polyarchy": 0.26,
+        "rule": 0.249,
+        "expression": 0.348,
+        "clean_gov": 0.338,
+        "academ": 0.19
+      },
+      "AGO": {
+        "name": "Angola",
+        "libdem": 0.161,
+        "polyarchy": 0.342,
+        "rule": 0.392,
+        "expression": 0.486,
+        "clean_gov": 0.454,
+        "academ": 0.439
+      },
+      "ARM": {
+        "name": "Armenia",
+        "libdem": 0.412,
+        "polyarchy": 0.625,
+        "rule": 0.597,
+        "expression": 0.73,
+        "clean_gov": 0.628,
+        "academ": 0.637
+      },
+      "AZE": {
+        "name": "Azerbaijan",
+        "libdem": 0.053,
+        "polyarchy": 0.174,
+        "rule": 0.047,
+        "expression": 0.118,
+        "clean_gov": 0.098,
+        "academ": 0.152
+      },
+      "BLR": {
+        "name": "Belarus",
+        "libdem": 0.036,
+        "polyarchy": 0.16,
+        "rule": 0.095,
+        "expression": 0.029,
+        "clean_gov": 0.581,
+        "academ": 0.041
+      },
+      "CMR": {
+        "name": "Cameroon",
+        "libdem": 0.126,
+        "polyarchy": 0.277,
+        "rule": 0.094,
+        "expression": 0.593,
+        "clean_gov": 0.068,
+        "academ": 0.226
+      },
+      "TCD": {
+        "name": "Chad",
+        "libdem": 0.054,
+        "polyarchy": 0.202,
+        "rule": 0.016,
+        "expression": 0.471,
+        "clean_gov": 0.048,
+        "academ": 0.229
+      },
+      "CHN": {
+        "name": "China",
+        "libdem": 0.037,
+        "polyarchy": 0.073,
+        "rule": 0.212,
+        "expression": 0.043,
+        "clean_gov": 0.45,
+        "academ": 0.066
+      },
+      "COD": {
+        "name": "Democratic Republic of the Congo",
+        "libdem": 0.123,
+        "polyarchy": 0.308,
+        "rule": 0.133,
+        "expression": 0.578,
+        "clean_gov": 0.095,
+        "academ": 0.471
+      },
+      "COG": {
+        "name": "Republic of the Congo",
+        "libdem": 0.119,
+        "polyarchy": 0.255,
+        "rule": 0.192,
+        "expression": 0.399,
+        "clean_gov": 0.161,
+        "academ": 0.3
+      },
+      "DJI": {
+        "name": "Djibouti",
+        "libdem": 0.118,
+        "polyarchy": 0.25,
+        "rule": 0.309,
+        "expression": 0.336,
+        "clean_gov": 0.314,
+        "academ": 0.317
+      },
+      "DOM": {
+        "name": "Dominican Republic",
+        "libdem": 0.495,
+        "polyarchy": 0.71,
+        "rule": 0.587,
+        "expression": 0.899,
+        "clean_gov": 0.438,
+        "academ": 0.901
+      },
+      "ERI": {
+        "name": "Eritrea",
+        "libdem": 0.009,
+        "polyarchy": 0.069,
+        "rule": 0.069,
+        "expression": 0.024,
+        "clean_gov": 0.272,
+        "academ": 0.031
+      },
+      "GAB": {
+        "name": "Gabon",
+        "libdem": 0.151,
+        "polyarchy": 0.227,
+        "rule": 0.409,
+        "expression": 0.755,
+        "clean_gov": 0.276,
+        "academ": 0.41
+      },
+      "GMB": {
+        "name": "The Gambia",
+        "libdem": 0.51,
+        "polyarchy": 0.63,
+        "rule": 0.775,
+        "expression": 0.808,
+        "clean_gov": 0.72,
+        "academ": 0.811
+      },
+      "GEO": {
+        "name": "Georgia",
+        "libdem": 0.327,
+        "polyarchy": 0.48,
+        "rule": 0.599,
+        "expression": 0.701,
+        "clean_gov": 0.812,
+        "academ": 0.725
+      },
+      "GNB": {
+        "name": "Guinea-Bissau",
+        "libdem": 0.14,
+        "polyarchy": 0.279,
+        "rule": 0.279,
+        "expression": 0.621,
+        "clean_gov": 0.253,
+        "academ": 0.606
+      },
+      "JAM": {
+        "name": "Jamaica",
+        "libdem": 0.676,
+        "polyarchy": 0.798,
+        "rule": 0.863,
+        "expression": 0.919,
+        "clean_gov": 0.81,
+        "academ": 0.939
+      },
+      "KAZ": {
+        "name": "Kazakhstan",
+        "libdem": 0.133,
+        "polyarchy": 0.267,
+        "rule": 0.231,
+        "expression": 0.359,
+        "clean_gov": 0.271,
+        "academ": 0.342
+      },
+      "KGZ": {
+        "name": "Kyrgyzstan",
+        "libdem": 0.185,
+        "polyarchy": 0.321,
+        "rule": 0.354,
+        "expression": 0.479,
+        "clean_gov": 0.207,
+        "academ": 0.456
+      },
+      "LAO": {
+        "name": "Laos",
+        "libdem": 0.117,
+        "polyarchy": 0.135,
+        "rule": 0.314,
+        "expression": 0.038,
+        "clean_gov": 0.248,
+        "academ": 0.142
+      },
+      "LBY": {
+        "name": "Libya",
+        "libdem": 0.109,
+        "polyarchy": 0.195,
+        "rule": 0.134,
+        "expression": 0.558,
+        "clean_gov": 0.181,
+        "academ": 0.303
+      },
+      "MDG": {
+        "name": "Madagascar",
+        "libdem": 0.201,
+        "polyarchy": 0.403,
+        "rule": 0.192,
+        "expression": 0.658,
+        "clean_gov": 0.117,
+        "academ": 0.71
+      },
+      "MDA": {
+        "name": "Moldova",
+        "libdem": 0.503,
+        "polyarchy": 0.622,
+        "rule": 0.801,
+        "expression": 0.674,
+        "clean_gov": 0.675,
+        "academ": 0.696
+      },
+      "NAM": {
+        "name": "Namibia",
+        "libdem": 0.516,
+        "polyarchy": 0.624,
+        "rule": 0.824,
+        "expression": 0.844,
+        "clean_gov": 0.717,
+        "academ": 0.718
+      },
+      "PSE": {
+        "name": "Palestine/West Bank",
+        "libdem": 0.118,
+        "polyarchy": 0.212,
+        "rule": 0.434,
+        "expression": 0.314,
+        "clean_gov": 0.556,
+        "academ": 0.347
+      },
+      "RWA": {
+        "name": "Rwanda",
+        "libdem": 0.091,
+        "polyarchy": 0.201,
+        "rule": 0.386,
+        "expression": 0.154,
+        "clean_gov": 0.582,
+        "academ": 0.055
+      },
+      "SOM": {
+        "name": "Somalia",
+        "libdem": 0.127,
+        "polyarchy": 0.165,
+        "rule": 0.168,
+        "expression": 0.619,
+        "clean_gov": 0.13,
+        "academ": 0.481
+      },
+      "LKA": {
+        "name": "Sri Lanka",
+        "libdem": 0.497,
+        "polyarchy": 0.677,
+        "rule": 0.708,
+        "expression": 0.857,
+        "clean_gov": 0.544,
+        "academ": 0.782
+      },
+      "SWZ": {
+        "name": "Eswatini",
+        "libdem": 0.101,
+        "polyarchy": 0.129,
+        "rule": 0.255,
+        "expression": 0.113,
+        "clean_gov": 0.46,
+        "academ": 0.165
+      },
+      "TJK": {
+        "name": "Tajikistan",
+        "libdem": 0.041,
+        "polyarchy": 0.168,
+        "rule": 0.047,
+        "expression": 0.087,
+        "clean_gov": 0.118,
+        "academ": 0.078
+      },
+      "TGO": {
+        "name": "Togo",
+        "libdem": 0.167,
+        "polyarchy": 0.35,
+        "rule": 0.215,
+        "expression": 0.576,
+        "clean_gov": 0.227,
+        "academ": 0.73
+      },
+      "TTO": {
+        "name": "Trinidad and Tobago",
+        "libdem": 0.653,
+        "polyarchy": 0.773,
+        "rule": 0.884,
+        "expression": 0.886,
+        "clean_gov": 0.9,
+        "academ": 0.871
+      },
+      "TKM": {
+        "name": "Turkmenistan",
+        "libdem": 0.034,
+        "polyarchy": 0.149,
+        "rule": 0.067,
+        "expression": 0.042,
+        "clean_gov": 0.109,
+        "academ": 0.064
+      },
+      "PSG": {
+        "name": "Palestine/Gaza",
+        "libdem": 0.055,
+        "polyarchy": 0.095,
+        "rule": 0.341,
+        "expression": 0.071,
+        "clean_gov": 0.658,
+        "academ": 0.12
+      },
+      "SML": {
+        "name": "Somaliland",
+        "libdem": 0.272,
+        "polyarchy": 0.42,
+        "rule": 0.393,
+        "expression": 0.629,
+        "clean_gov": 0.402,
+        "academ": 0.567
+      },
+      "UZB": {
+        "name": "Uzbekistan",
+        "libdem": 0.074,
+        "polyarchy": 0.214,
+        "rule": 0.142,
+        "expression": 0.222,
+        "clean_gov": 0.165,
+        "academ": 0.281
+      },
+      "AUT": {
+        "name": "Austria",
+        "libdem": 0.762,
+        "polyarchy": 0.84,
+        "rule": 0.931,
+        "expression": 0.923,
+        "clean_gov": 0.886,
+        "academ": 0.894
+      },
+      "BHR": {
+        "name": "Bahrain",
+        "libdem": 0.062,
+        "polyarchy": 0.138,
+        "rule": 0.252,
+        "expression": 0.163,
+        "clean_gov": 0.53,
+        "academ": 0.199
+      },
+      "BRB": {
+        "name": "Barbados",
+        "libdem": 0.685,
+        "polyarchy": 0.802,
+        "rule": 0.927,
+        "expression": 0.92,
+        "clean_gov": 0.927,
+        "academ": 0.911
+      },
+      "BEL": {
+        "name": "Belgium",
+        "libdem": 0.81,
+        "polyarchy": 0.891,
+        "rule": 0.971,
+        "expression": 0.969,
+        "clean_gov": 0.969,
+        "academ": 0.934
+      },
+      "BIH": {
+        "name": "Bosnia and Herzegovina",
+        "libdem": 0.336,
+        "polyarchy": 0.507,
+        "rule": 0.433,
+        "expression": 0.666,
+        "clean_gov": 0.231,
+        "academ": 0.724
+      },
+      "BGR": {
+        "name": "Bulgaria",
+        "libdem": 0.533,
+        "polyarchy": 0.645,
+        "rule": 0.628,
+        "expression": 0.817,
+        "clean_gov": 0.421,
+        "academ": 0.843
+      },
+      "COM": {
+        "name": "Comoros",
+        "libdem": 0.122,
+        "polyarchy": 0.276,
+        "rule": 0.157,
+        "expression": 0.464,
+        "clean_gov": 0.191,
+        "academ": 0.302
+      },
+      "HRV": {
+        "name": "Croatia",
+        "libdem": 0.607,
+        "polyarchy": 0.71,
+        "rule": 0.795,
+        "expression": 0.766,
+        "clean_gov": 0.746,
+        "academ": 0.825
+      },
+      "CUB": {
+        "name": "Cuba",
+        "libdem": 0.056,
+        "polyarchy": 0.178,
+        "rule": 0.125,
+        "expression": 0.09,
+        "clean_gov": 0.369,
+        "academ": 0.099
+      },
+      "CYP": {
+        "name": "Cyprus",
+        "libdem": 0.653,
+        "polyarchy": 0.777,
+        "rule": 0.876,
+        "expression": 0.823,
+        "clean_gov": 0.839,
+        "academ": 0.896
+      },
+      "CZE": {
+        "name": "Czechia",
+        "libdem": 0.811,
+        "polyarchy": 0.865,
+        "rule": 0.945,
+        "expression": 0.96,
+        "clean_gov": 0.905,
+        "academ": 0.978
+      },
+      "DNK": {
+        "name": "Denmark",
+        "libdem": 0.885,
+        "polyarchy": 0.917,
+        "rule": 0.997,
+        "expression": 0.985,
+        "clean_gov": 0.996,
+        "academ": 0.894
+      },
+      "GNQ": {
+        "name": "Equatorial Guinea",
+        "libdem": 0.049,
+        "polyarchy": 0.176,
+        "rule": 0.054,
+        "expression": 0.139,
+        "clean_gov": 0.163,
+        "academ": 0.064
+      },
+      "EST": {
+        "name": "Estonia",
+        "libdem": 0.848,
+        "polyarchy": 0.893,
+        "rule": 0.985,
+        "expression": 0.969,
+        "clean_gov": 0.975,
+        "academ": 0.974
+      },
+      "FJI": {
+        "name": "Fiji",
+        "libdem": 0.41,
+        "polyarchy": 0.514,
+        "rule": 0.791,
+        "expression": 0.747,
+        "clean_gov": 0.711,
+        "academ": 0.638
+      },
+      "FIN": {
+        "name": "Finland",
+        "libdem": 0.782,
+        "polyarchy": 0.827,
+        "rule": 0.988,
+        "expression": 0.95,
+        "clean_gov": 0.977,
+        "academ": 0.84
+      },
+      "GRC": {
+        "name": "Greece",
+        "libdem": 0.565,
+        "polyarchy": 0.744,
+        "rule": 0.819,
+        "expression": 0.808,
+        "clean_gov": 0.763,
+        "academ": 0.699
+      },
+      "GUY": {
+        "name": "Guyana",
+        "libdem": 0.314,
+        "polyarchy": 0.491,
+        "rule": 0.513,
+        "expression": 0.788,
+        "clean_gov": 0.493,
+        "academ": 0.792
+      },
+      "HKG": {
+        "name": "Hong Kong",
+        "libdem": 0.142,
+        "polyarchy": 0.158,
+        "rule": 0.739,
+        "expression": 0.265,
+        "clean_gov": 0.91,
+        "academ": 0.227
+      },
+      "ISL": {
+        "name": "Iceland",
+        "libdem": 0.757,
+        "polyarchy": 0.842,
+        "rule": 0.976,
+        "expression": 0.912,
+        "clean_gov": 0.977,
+        "academ": 0.875
+      },
+      "ISR": {
+        "name": "Israel",
+        "libdem": 0.597,
+        "polyarchy": 0.702,
+        "rule": 0.894,
+        "expression": 0.838,
+        "clean_gov": 0.889,
+        "academ": 0.84
+      },
+      "KWT": {
+        "name": "Kuwait",
+        "libdem": 0.179,
+        "polyarchy": 0.198,
+        "rule": 0.709,
+        "expression": 0.565,
+        "clean_gov": 0.685,
+        "academ": 0.469
+      },
+      "LTU": {
+        "name": "Lithuania",
+        "libdem": 0.732,
+        "polyarchy": 0.798,
+        "rule": 0.93,
+        "expression": 0.933,
+        "clean_gov": 0.831,
+        "academ": 0.809
+      },
+      "LUX": {
+        "name": "Luxembourg",
+        "libdem": 0.781,
+        "polyarchy": 0.869,
+        "rule": 0.98,
+        "expression": 0.957,
+        "clean_gov": 0.971,
+        "academ": 0.919
+      },
+      "MKD": {
+        "name": "North Macedonia",
+        "libdem": 0.37,
+        "polyarchy": 0.557,
+        "rule": 0.376,
+        "expression": 0.658,
+        "clean_gov": 0.246,
+        "academ": 0.759
+      },
+      "MYS": {
+        "name": "Malaysia",
+        "libdem": 0.359,
+        "polyarchy": 0.513,
+        "rule": 0.698,
+        "expression": 0.593,
+        "clean_gov": 0.678,
+        "academ": 0.33
+      },
+      "MLT": {
+        "name": "Malta",
+        "libdem": 0.621,
+        "polyarchy": 0.783,
+        "rule": 0.83,
+        "expression": 0.829,
+        "clean_gov": 0.814,
+        "academ": 0.874
+      },
+      "MUS": {
+        "name": "Mauritius",
+        "libdem": 0.371,
+        "polyarchy": 0.495,
+        "rule": 0.653,
+        "expression": 0.621,
+        "clean_gov": 0.545,
+        "academ": 0.346
+      },
+      "MNE": {
+        "name": "Montenegro",
+        "libdem": 0.5,
+        "polyarchy": 0.64,
+        "rule": 0.718,
+        "expression": 0.855,
+        "clean_gov": 0.525,
+        "academ": 0.824
+      },
+      "NZL": {
+        "name": "New Zealand",
+        "libdem": 0.811,
+        "polyarchy": 0.868,
+        "rule": 0.989,
+        "expression": 0.95,
+        "clean_gov": 0.989,
+        "academ": 0.809
+      },
+      "NOR": {
+        "name": "Norway",
+        "libdem": 0.847,
+        "polyarchy": 0.889,
+        "rule": 0.986,
+        "expression": 0.948,
+        "clean_gov": 0.99,
+        "academ": 0.843
+      },
+      "OMN": {
+        "name": "Oman",
+        "libdem": 0.139,
+        "polyarchy": 0.175,
+        "rule": 0.61,
+        "expression": 0.151,
+        "clean_gov": 0.747,
+        "academ": 0.215
+      },
+      "PRY": {
+        "name": "Paraguay",
+        "libdem": 0.39,
+        "polyarchy": 0.581,
+        "rule": 0.439,
+        "expression": 0.751,
+        "clean_gov": 0.199,
+        "academ": 0.674
+      },
+      "ROU": {
+        "name": "Romania",
+        "libdem": 0.449,
+        "polyarchy": 0.628,
+        "rule": 0.653,
+        "expression": 0.736,
+        "clean_gov": 0.611,
+        "academ": 0.823
+      },
+      "STP": {
+        "name": "Sao Tome and Principe",
+        "libdem": 0.519,
+        "polyarchy": 0.632,
+        "rule": 0.747,
+        "expression": 0.793,
+        "clean_gov": 0.715,
+        "academ": 0.636
+      },
+      "SAU": {
+        "name": "Saudi Arabia",
+        "libdem": 0.047,
+        "polyarchy": 0.015,
+        "rule": 0.385,
+        "expression": 0.087,
+        "clean_gov": 0.674,
+        "academ": 0.066
+      },
+      "SRB": {
+        "name": "Serbia",
+        "libdem": 0.225,
+        "polyarchy": 0.315,
+        "rule": 0.428,
+        "expression": 0.438,
+        "clean_gov": 0.24,
+        "academ": 0.771
+      },
+      "SYC": {
+        "name": "Seychelles",
+        "libdem": 0.652,
+        "polyarchy": 0.737,
+        "rule": 0.975,
+        "expression": 0.822,
+        "clean_gov": 0.953,
+        "academ": 0.891
+      },
+      "SGP": {
+        "name": "Singapore",
+        "libdem": 0.348,
+        "polyarchy": 0.418,
+        "rule": 0.961,
+        "expression": 0.348,
+        "clean_gov": 0.968,
+        "academ": 0.466
+      },
+      "SVK": {
+        "name": "Slovakia",
+        "libdem": 0.59,
+        "polyarchy": 0.746,
+        "rule": 0.764,
+        "expression": 0.807,
+        "clean_gov": 0.722,
+        "academ": 0.901
+      },
+      "SVN": {
+        "name": "Slovenia",
+        "libdem": 0.63,
+        "polyarchy": 0.725,
+        "rule": 0.909,
+        "expression": 0.752,
+        "clean_gov": 0.943,
+        "academ": 0.922
+      },
+      "SLB": {
+        "name": "Solomon Islands",
+        "libdem": 0.536,
+        "polyarchy": 0.688,
+        "rule": 0.67,
+        "expression": 0.84,
+        "clean_gov": 0.398,
+        "academ": 0.904
+      },
+      "VUT": {
+        "name": "Vanuatu",
+        "libdem": 0.686,
+        "polyarchy": 0.8,
+        "rule": 0.868,
+        "expression": 0.884,
+        "clean_gov": 0.721,
+        "academ": 0.909
+      },
+      "ARE": {
+        "name": "United Arab Emirates",
+        "libdem": 0.077,
+        "polyarchy": 0.104,
+        "rule": 0.638,
+        "expression": 0.062,
+        "clean_gov": 0.895,
+        "academ": 0.192
+      },
+      "HUN": {
+        "name": "Hungary",
+        "libdem": 0.325,
+        "polyarchy": 0.444,
+        "rule": 0.585,
+        "expression": 0.512,
+        "clean_gov": 0.506,
+        "academ": 0.304
+      },
+      "ZZB": {
+        "name": "Zanzibar",
+        "libdem": 0.247,
+        "polyarchy": 0.288,
+        "rule": 0.484,
+        "expression": 0.502,
+        "clean_gov": 0.475,
+        "academ": 0.377
+      }
+    }
+  },
+  "inequality": {
+    "coords": {
+      "North America": [
+        45.0,
+        -100.0
+      ],
+      "Western Europe": [
+        48.0,
+        5.0
+      ],
+      "Nordic Countries": [
+        63.0,
+        15.0
+      ],
+      "Eastern Europe": [
+        52.0,
+        30.0
+      ],
+      "East Asia": [
+        35.0,
+        115.0
+      ],
+      "Latin America": [
+        -15.0,
+        -60.0
+      ],
+      "South Asia": [
+        22.0,
+        78.0
+      ],
+      "Sub-Saharan Africa": [
+        0.0,
+        25.0
+      ],
+      "Middle East & North Africa": [
+        28.0,
+        35.0
+      ]
+    },
+    "data": {
+      "North America": {
+        "2018": {
+          "gdp": 62.0,
+          "gini": 41.5,
+          "life_exp": 78.5,
+          "edu": 0.92,
+          "wellbeing": 7.1,
+          "media_trust": 38.0
+        },
+        "2020": {
+          "gdp": 63.4,
+          "gini": 41.3,
+          "life_exp": 78.9,
+          "edu": 0.93,
+          "wellbeing": 7.2,
+          "media_trust": 37.0
+        },
+        "2022": {
+          "gdp": 64.8,
+          "gini": 41.1,
+          "life_exp": 79.3,
+          "edu": 0.94,
+          "wellbeing": 7.2,
+          "media_trust": 36.0
+        },
+        "2024": {
+          "gdp": 66.2,
+          "gini": 40.9,
+          "life_exp": 79.7,
+          "edu": 0.95,
+          "wellbeing": 7.3,
+          "media_trust": 35.0
+        }
+      },
+      "Western Europe": {
+        "2018": {
+          "gdp": 48.0,
+          "gini": 30.5,
+          "life_exp": 82.2,
+          "edu": 0.91,
+          "wellbeing": 7.4,
+          "media_trust": 55.0
+        },
+        "2020": {
+          "gdp": 49.4,
+          "gini": 30.3,
+          "life_exp": 82.6,
+          "edu": 0.92,
+          "wellbeing": 7.5,
+          "media_trust": 54.0
+        },
+        "2022": {
+          "gdp": 50.8,
+          "gini": 30.1,
+          "life_exp": 83.0,
+          "edu": 0.93,
+          "wellbeing": 7.5,
+          "media_trust": 53.0
+        },
+        "2024": {
+          "gdp": 52.2,
+          "gini": 29.9,
+          "life_exp": 83.4,
+          "edu": 0.94,
+          "wellbeing": 7.6,
+          "media_trust": 52.0
+        }
+      },
+      "Nordic Countries": {
+        "2018": {
+          "gdp": 58.0,
+          "gini": 26.8,
+          "life_exp": 83.1,
+          "edu": 0.95,
+          "wellbeing": 7.8,
+          "media_trust": 68.0
+        },
+        "2020": {
+          "gdp": 59.4,
+          "gini": 26.6,
+          "life_exp": 83.5,
+          "edu": 0.96,
+          "wellbeing": 7.9,
+          "media_trust": 67.0
+        },
+        "2022": {
+          "gdp": 60.8,
+          "gini": 26.4,
+          "life_exp": 83.9,
+          "edu": 0.97,
+          "wellbeing": 7.9,
+          "media_trust": 66.0
+        },
+        "2024": {
+          "gdp": 62.2,
+          "gini": 26.2,
+          "life_exp": 84.3,
+          "edu": 0.98,
+          "wellbeing": 8.0,
+          "media_trust": 65.0
+        }
+      },
+      "Eastern Europe": {
+        "2018": {
+          "gdp": 22.0,
+          "gini": 32.5,
+          "life_exp": 75.0,
+          "edu": 0.82,
+          "wellbeing": 5.8,
+          "media_trust": 42.0
+        },
+        "2020": {
+          "gdp": 23.4,
+          "gini": 32.3,
+          "life_exp": 75.4,
+          "edu": 0.83,
+          "wellbeing": 5.9,
+          "media_trust": 41.0
+        },
+        "2022": {
+          "gdp": 24.8,
+          "gini": 32.1,
+          "life_exp": 75.8,
+          "edu": 0.84,
+          "wellbeing": 5.9,
+          "media_trust": 40.0
+        },
+        "2024": {
+          "gdp": 26.2,
+          "gini": 31.9,
+          "life_exp": 76.2,
+          "edu": 0.85,
+          "wellbeing": 6.0,
+          "media_trust": 39.0
+        }
+      },
+      "East Asia": {
+        "2018": {
+          "gdp": 28.0,
+          "gini": 36.2,
+          "life_exp": 79.2,
+          "edu": 0.84,
+          "wellbeing": 6.2,
+          "media_trust": 52.0
+        },
+        "2020": {
+          "gdp": 29.4,
+          "gini": 36.0,
+          "life_exp": 79.6,
+          "edu": 0.85,
+          "wellbeing": 6.3,
+          "media_trust": 51.0
+        },
+        "2022": {
+          "gdp": 30.8,
+          "gini": 35.8,
+          "life_exp": 80.0,
+          "edu": 0.86,
+          "wellbeing": 6.3,
+          "media_trust": 50.0
+        },
+        "2024": {
+          "gdp": 32.2,
+          "gini": 35.6,
+          "life_exp": 80.4,
+          "edu": 0.87,
+          "wellbeing": 6.4,
+          "media_trust": 49.0
+        }
+      },
+      "Latin America": {
+        "2018": {
+          "gdp": 13.0,
+          "gini": 46.5,
+          "life_exp": 74.5,
+          "edu": 0.73,
+          "wellbeing": 5.9,
+          "media_trust": 39.0
+        },
+        "2020": {
+          "gdp": 14.4,
+          "gini": 46.3,
+          "life_exp": 74.9,
+          "edu": 0.74,
+          "wellbeing": 6.0,
+          "media_trust": 38.0
+        },
+        "2022": {
+          "gdp": 15.8,
+          "gini": 46.1,
+          "life_exp": 75.3,
+          "edu": 0.75,
+          "wellbeing": 6.0,
+          "media_trust": 37.0
+        },
+        "2024": {
+          "gdp": 17.2,
+          "gini": 45.9,
+          "life_exp": 75.7,
+          "edu": 0.76,
+          "wellbeing": 6.1,
+          "media_trust": 36.0
+        }
+      },
+      "South Asia": {
+        "2018": {
+          "gdp": 7.5,
+          "gini": 35.8,
+          "life_exp": 69.8,
+          "edu": 0.65,
+          "wellbeing": 5.1,
+          "media_trust": 48.0
+        },
+        "2020": {
+          "gdp": 8.9,
+          "gini": 35.6,
+          "life_exp": 70.2,
+          "edu": 0.66,
+          "wellbeing": 5.2,
+          "media_trust": 47.0
+        },
+        "2022": {
+          "gdp": 10.3,
+          "gini": 35.4,
+          "life_exp": 70.6,
+          "edu": 0.67,
+          "wellbeing": 5.2,
+          "media_trust": 46.0
+        },
+        "2024": {
+          "gdp": 11.7,
+          "gini": 35.2,
+          "life_exp": 71.0,
+          "edu": 0.68,
+          "wellbeing": 5.3,
+          "media_trust": 45.0
+        }
+      },
+      "Sub-Saharan Africa": {
+        "2018": {
+          "gdp": 4.2,
+          "gini": 44.0,
+          "life_exp": 63.5,
+          "edu": 0.55,
+          "wellbeing": 4.7,
+          "media_trust": 45.0
+        },
+        "2020": {
+          "gdp": 5.6,
+          "gini": 43.8,
+          "life_exp": 63.9,
+          "edu": 0.56,
+          "wellbeing": 4.8,
+          "media_trust": 44.0
+        },
+        "2022": {
+          "gdp": 7.0,
+          "gini": 43.6,
+          "life_exp": 64.3,
+          "edu": 0.57,
+          "wellbeing": 4.8,
+          "media_trust": 43.0
+        },
+        "2024": {
+          "gdp": 8.4,
+          "gini": 43.4,
+          "life_exp": 64.7,
+          "edu": 0.58,
+          "wellbeing": 4.9,
+          "media_trust": 42.0
+        }
+      },
+      "Middle East & North Africa": {
+        "2018": {
+          "gdp": 18.0,
+          "gini": 39.5,
+          "life_exp": 73.0,
+          "edu": 0.71,
+          "wellbeing": 5.3,
+          "media_trust": 36.0
+        },
+        "2020": {
+          "gdp": 19.4,
+          "gini": 39.3,
+          "life_exp": 73.4,
+          "edu": 0.72,
+          "wellbeing": 5.4,
+          "media_trust": 35.0
+        },
+        "2022": {
+          "gdp": 20.8,
+          "gini": 39.1,
+          "life_exp": 73.8,
+          "edu": 0.73,
+          "wellbeing": 5.4,
+          "media_trust": 34.0
+        },
+        "2024": {
+          "gdp": 22.2,
+          "gini": 38.9,
+          "life_exp": 74.2,
+          "edu": 0.74,
+          "wellbeing": 5.5,
+          "media_trust": 33.0
+        }
+      }
+    }
+  }
+}
