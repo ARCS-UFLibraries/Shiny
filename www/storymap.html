@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UF Spatial Social Science Lab • Interactive StoryMap</title>
+  
+  <!-- Plus Jakarta Sans Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <style>
+    :root {
+      --uf-blue: #0021A5;
+      --uf-blue-dark: #001773;
+      --uf-blue-soft: #edf2ff;
+      --uf-orange: #FA4616;
+      --uf-orange-dark: #d83407;
+      --uf-orange-soft: #fff5f2;
+      --ink-primary: #0a101d;
+      --ink-secondary: #475467;
+      --ink-muted: #667085;
+      --surface: #ffffff;
+      --glass-bg: rgba(255, 255, 255, 0.94);
+      --glass-border: rgba(228, 231, 236, 0.85);
+      --shadow-float: 0 16px 40px -4px rgba(0, 33, 165, 0.16), 0 4px 12px rgba(0, 0, 0, 0.05);
+      --radius-xl: 18px;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-full: 9999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      color: var(--ink-primary);
+      background: #0f172a;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Fullscreen Map */
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1;
+      background: #0f172a;
+    }
+
+    /* Top Navigation Bar */
+    .story-nav {
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      right: 20px;
+      height: 60px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-float);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .uf-badge {
+      background: var(--uf-blue);
+      color: #fff;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+    .story-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink-primary);
+      letter-spacing: -0.02em;
+    }
+    .story-subtitle {
+      font-size: 11px;
+      color: var(--ink-secondary);
+      font-weight: 500;
+    }
+
+    /* Chapter Stepper Buttons */
+    .chapter-stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ch-btn {
+      background: #fff;
+      border: 1px solid #d0d5dd;
+      color: var(--ink-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    }
+    .ch-btn:hover {
+      background: var(--uf-blue-soft);
+      border-color: #bfdbfe;
+      color: var(--uf-blue);
+      transform: translateY(-1px);
+    }
+    .ch-btn.active {
+      background: var(--uf-blue);
+      border-color: var(--uf-blue);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 33, 165, 0.35);
+    }
+
+    /* Control Actions */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .action-btn {
+      background: #fff;
+      border: 1px solid #d0d5dd;
+      color: var(--ink-primary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .action-btn:hover {
+      background: #f8fafc;
+      border-color: #98a2b3;
+    }
+    .action-btn.orange {
+      background: var(--uf-orange);
+      border-color: var(--uf-orange);
+      color: #fff;
+    }
+    .action-btn.orange:hover {
+      background: var(--uf-orange-dark);
+    }
+
+    /* Floating Sidecar Narrative Drawer */
+    .story-sidecar {
+      position: absolute;
+      top: 86px;
+      left: 20px;
+      bottom: 24px;
+      width: 440px;
+      max-width: calc(100vw - 40px);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-float);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .story-sidecar.collapsed {
+      transform: translateX(-470px);
+    }
+
+    /* Drawer Collapse Toggle Tab */
+    .drawer-toggle {
+      position: absolute;
+      top: 100px;
+      left: 472px;
+      z-index: 1001;
+      background: #ffffff;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--ink-secondary);
+      transition: all 0.2s;
+    }
+    .story-sidecar.collapsed + .drawer-toggle {
+      left: 20px;
+    }
+
+    /* Sidecar Content Scrollable Area */
+    .sidecar-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .sidecar-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .sidecar-body::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    .chapter-tag {
+      display: inline-block;
+      background: var(--uf-orange);
+      color: #ffffff;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .chapter-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink-primary);
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .chapter-sub {
+      font-size: 13px;
+      color: var(--ink-secondary);
+      font-weight: 500;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    /* Metric Selector Pills */
+    .metric-section-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    .metric-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .m-pill {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: var(--ink-secondary);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .m-pill:hover {
+      border-color: var(--uf-blue);
+      color: var(--uf-blue);
+    }
+    .m-pill.active {
+      background: var(--uf-blue-soft);
+      border-color: var(--uf-blue);
+      color: var(--uf-blue);
+    }
+
+    /* KPI Deck */
+    .kpi-deck {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .kpi-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--uf-blue);
+      margin-bottom: 2px;
+    }
+    .kpi-lbl {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--ink-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    /* Narrative Text */
+    .narrative-prose {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: #334155;
+      margin-bottom: 20px;
+    }
+    .narrative-prose p {
+      margin-bottom: 12px;
+    }
+    .narrative-prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Pedagogical Inquiry Box */
+    .inquiry-box {
+      background: #fffaf8;
+      border-left: 3px solid var(--uf-orange);
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .inquiry-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--uf-orange);
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .inquiry-desc {
+      font-size: 12.5px;
+      color: var(--ink-primary);
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* Sidecar Footer with Step Buttons */
+    .sidecar-footer {
+      padding: 16px 24px;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .step-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .step-btn.prev {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--ink-secondary);
+    }
+    .step-btn.prev:hover {
+      background: #f1f5f9;
+    }
+    .step-btn.next {
+      background: var(--uf-blue);
+      border: 1px solid var(--uf-blue);
+      color: #ffffff;
+    }
+    .step-btn.next:hover {
+      background: var(--uf-blue-dark);
+    }
+
+    /* Floating Legend */
+    .map-legend {
+      position: absolute;
+      bottom: 24px;
+      right: 20px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-float);
+      z-index: 1000;
+      min-width: 220px;
+    }
+    .legend-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--ink-primary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .legend-bar {
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #edf2ff, #3b82f6, #0021A5);
+      margin-bottom: 4px;
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--ink-secondary);
+      font-weight: 700;
+    }
+
+    /* Custom Leaflet Marker Badges */
+    .custom-marker-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .marker-pin {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--uf-blue);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 33, 165, 0.4);
+      position: relative;
+    }
+    .marker-pin.pulse::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--uf-orange);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .marker-label {
+      background: rgba(10, 16, 29, 0.85);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* Custom Popup Card */
+    .leaflet-popup-content-wrapper {
+      border-radius: var(--radius-lg) !important;
+      padding: 6px !important;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.18) !important;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    }
+    .popup-box {
+      padding: 10px 14px;
+    }
+    .popup-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink-primary);
+      margin-bottom: 2px;
+    }
+    .popup-sub {
+      font-size: 11px;
+      color: var(--ink-secondary);
+      margin-bottom: 8px;
+    }
+    .popup-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .popup-stat-item {
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+    .popup-stat-val {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--uf-blue);
+    }
+    .popup-stat-lbl {
+      font-size: 9.5px;
+      color: var(--ink-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* Autoplay Progress Bar */
+    .autoplay-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--uf-orange);
+      width: 0%;
+      transition: width 0.1s linear;
+      z-index: 1002;
+    }
+
+    @media (max-width: 900px) {
+      .story-sidecar {
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        top: auto;
+        height: 52vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      }
+      .story-nav {
+        left: 10px;
+        right: 10px;
+      }
+      .map-legend {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Progress Bar for Autoplay -->
+  <div id="progressBar" class="autoplay-progress"></div>
+
+  <!-- Fullscreen Leaflet Map -->
+  <div id="map"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="story-nav">
+    <div class="brand-block">
+      <span class="uf-badge">UF</span>
+      <div>
+        <div class="story-title">Spatial Politics & Global Democracy</div>
+        <div class="story-subtitle">Interactive Empirical Social Science StoryMap</div>
+      </div>
+    </div>
+
+    <!-- Chapter Navigation Buttons -->
+    <div class="chapter-stepper">
+      <button class="ch-btn active" onclick="switchChapter(0)">🇺🇸 1. US Elections</button>
+      <button class="ch-btn" onclick="switchChapter(1)">🇪🇺 2. European Trust</button>
+      <button class="ch-btn" onclick="switchChapter(2)">🌍 3. Global Democracy</button>
+      <button class="ch-btn" onclick="switchChapter(3)">📈 4. Inequality & Health</button>
+    </div>
+
+    <!-- Controls -->
+    <div class="nav-actions">
+      <button id="autoplayBtn" class="action-btn" onclick="toggleAutoplay()">▶ Autoplay Tour</button>
+      <button class="action-btn" onclick="cycleBasemap()">🗺️ Basemap</button>
+      <button class="action-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+  </nav>
+
+  <!-- Floating Sidecar Narrative Drawer -->
+  <div id="sidecar" class="story-sidecar">
+    <div class="sidecar-body">
+      <span id="chapterTag" class="chapter-tag">Chapter 1 of 4</span>
+      <h1 id="chapterTitle" class="chapter-title">US Voter Turnout & Ballot Access</h1>
+      <p id="chapterSub" class="chapter-sub">State-level civic engagement, youth participation divergence, and mail balloting policy.</p>
+
+      <!-- Dynamic Metric Selector Pills -->
+      <div class="metric-section-title">Select Active Variable to Map:</div>
+      <div id="metricPills" class="metric-pills"></div>
+
+      <!-- KPI Deck -->
+      <div id="kpiDeck" class="kpi-deck"></div>
+
+      <!-- Narrative Prose -->
+      <div id="narrativeProse" class="narrative-prose"></div>
+
+      <!-- Pedagogical Inquiry Box -->
+      <div class="inquiry-box">
+        <div class="inquiry-title">💡 Social Science Inquiry</div>
+        <div id="inquiryDesc" class="inquiry-desc"></div>
+      </div>
+    </div>
+
+    <!-- Footer Step Buttons -->
+    <div class="sidecar-footer">
+      <button class="step-btn prev" onclick="prevChapter()">← Previous Chapter</button>
+      <button class="step-btn next" onclick="nextChapter()">Next Chapter →</button>
+    </div>
+  </div>
+
+  <div class="drawer-toggle" onclick="toggleDrawer()" title="Collapse / Expand Story Panel">◀</div>
+
+  <!-- Dynamic Legend -->
+  <div class="map-legend">
+    <div id="legendTitle" class="legend-title">Metric Intensity Scale</div>
+    <div id="legendBar" class="legend-bar"></div>
+    <div class="legend-labels">
+      <span id="legendMin">Min: 0</span>
+      <span id="legendMid">Avg: 50</span>
+      <span id="legendMax">Max: 100</span>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    // --- 1. EMBEDDED DATASET CACHE ---
+    let STORY_DATA = null;
+
+    // --- 2. CHAPTER CONFIGURATION ---
+    const CHAPTERS = [
+      {
+        id: "us_elections",
+        tag: "CHAPTER 1 OF 4 • US ELECTIONS",
+        title: "US Civic Engagement & Electoral Geography",
+        sub: "Investigate state-level voter turnout, the youth voting gap, and mail ballot adoption across recent presidential & midterm elections.",
+        view: [38.5, -96.5],
+        zoom: 5,
+        metrics: [
+          { key: "turnout", label: "Voter Turnout (%)", unit: "%", min: 50, max: 80, palette: "Blues" },
+          { key: "young_turnout", label: "Young Voter Turnout (%)", unit: "%", min: 20, max: 40, palette: "Purples" },
+          { key: "mail_ballot", label: "Mail Ballot Adoption (%)", unit: "%", min: 30, max: 55, palette: "Teal" }
+        ],
+        prose: `
+          <p>Electoral participation in the United States reflects sharp geographic, legal, and institutional differences. In states like <strong>California</strong> and <strong>Florida</strong>, mail-in balloting infrastructure and early voting options correlate directly with heightened aggregate turnout rates exceeding 65%.</p>
+          <p>Notice the persistent <strong>youth turnout deficit</strong>: across all tracked states, voters under 30 turn out at rates 30 to 35 percentage points lower than the general electorate. However, battleground states like <strong>Michigan</strong> and <strong>Georgia</strong> exhibit significant surges in youth turnout during contested presidential cycles.</p>
+        `,
+        inquiry: "Does convenience voting (such as universal mail-in ballots) increase turnout uniformly, or does it disproportionately mobilize already high-propensity voter cohorts?"
+      },
+      {
+        id: "ess_europe",
+        tag: "CHAPTER 2 OF 4 • EUROPEAN VALUES",
+        title: "Social Capital & Democratic Trust in Europe",
+        sub: "Cross-national findings from the European Social Survey (ESS Rounds 1–11): interpersonal trust, satisfaction with parliaments, and immigrant acceptance.",
+        view: [54.0, 15.0],
+        zoom: 4,
+        metrics: [
+          { key: "trust", label: "Interpersonal Social Trust (0–10)", unit: "pts", min: 3.5, max: 8.5, palette: "Blues" },
+          { key: "parliament", label: "Trust in Parliament (0–10)", unit: "pts", min: 2.5, max: 8.0, palette: "Greens" },
+          { key: "democracy", label: "Satisfaction with Democracy (0–10)", unit: "pts", min: 3.0, max: 8.5, palette: "Purples" },
+          { key: "immigrant", label: "Immigrant Acceptance Index (0–10)", unit: "pts", min: 4.0, max: 8.5, palette: "Teal" }
+        ],
+        prose: `
+          <p>Sociological theory posits that interpersonal social trust is the bedrock of democratic resilience. In the <strong>Nordic democracies (Norway, Sweden, Finland)</strong>, social trust scores consistently exceed <strong>7.0 out of 10</strong>, paired with high confidence in national parliaments.</p>
+          <p>Conversely, in Southern and Central European nations (such as <strong>Greece, Hungary, and Italy</strong>), institutional trust drops to 3.5–4.5, reflecting economic volatility and political skepticism. High social trust cushions democracies against extremist polarization.</p>
+        `,
+        inquiry: "Why has Scandinavia sustained high interpersonal trust across generations, and can institutional design foster trust in low-social-capital societies?"
+      },
+      {
+        id: "vdem_global",
+        tag: "CHAPTER 3 OF 4 • GLOBAL COMPARATIVE",
+        title: "The Varieties of Democracy (V-Dem) Global Lab",
+        sub: "Explore global democratic resilience, rule of law, and the contemporary autocratization wave across 180+ sovereign nations (1900–2025).",
+        view: [25.0, 15.0],
+        zoom: 3,
+        metrics: [
+          { key: "libdem", label: "Liberal Democracy Index (0–1)", unit: "idx", min: 0.0, max: 1.0, palette: "Viridis" },
+          { key: "polyarchy", label: "Electoral Democracy Index (0–1)", unit: "idx", min: 0.0, max: 1.0, palette: "Blues" },
+          { key: "rule", label: "Rule of Law Index (0–1)", unit: "idx", min: 0.0, max: 1.0, palette: "Greens" },
+          { key: "expression", label: "Freedom of Expression Index", unit: "idx", min: 0.0, max: 1.0, palette: "Teal" },
+          { key: "clean_gov", label: "Clean Governance (1 - Corruption)", unit: "idx", min: 0.0, max: 1.0, palette: "Blues" }
+        ],
+        prose: `
+          <p>According to V-Dem Institute findings, more than <strong>70% of the world's population</strong> currently resides in autocracies or backsliding regimes. While Western Europe, North America, and parts of Australasia maintain liberal democracy scores above <strong>0.80</strong>, sharp institutional erosion has impacted regions in Eastern Europe, Central Asia, and Latin America.</p>
+          <p>Crucially, <strong>Freedom of Expression and Media Independence</strong> are the earliest canaries in the coal mine: executive leaders routinely restrict academic and journalistic freedom years before altering formal election procedures.</p>
+        `,
+        inquiry: "What institutional constraints (judicial review, bicameral veto points) prove most resilient when an elected executive attempts democratic backsliding?"
+      },
+      {
+        id: "inequality_global",
+        tag: "CHAPTER 4 OF 4 • POLITICAL ECONOMY",
+        title: "Spatial Inequality & Global Human Well-being",
+        sub: "Regional comparisons between economic output (GDP per capita), Gini inequality, life expectancy, and civic well-being across world regions.",
+        view: [15.0, 25.0],
+        zoom: 3,
+        metrics: [
+          { key: "life_exp", label: "Life Expectancy (Years)", unit: "yrs", min: 55, max: 85, palette: "Greens" },
+          { key: "wellbeing", label: "Civic Well-being Score (0–100)", unit: "pts", min: 40, max: 95, palette: "Blues" },
+          { key: "gini", label: "Gini Inequality Index (Lower = More Equal)", unit: "pts", min: 25, max: 55, palette: "Reds" },
+          { key: "media_trust", label: "Trust in Media (%)", unit: "%", min: 30, max: 75, palette: "Purples" }
+        ],
+        prose: `
+          <p>Economic growth alone does not guarantee social cohesion. When comparing global macro-regions, <strong>Nordic and Western European</strong> countries achieve high life expectancy (82+ years) combined with low Gini inequality (25–30).</p>
+          <p>In contrast, regions with high Gini inequality (e.g. <strong>Latin America and Sub-Saharan Africa</strong>) face structural headwinds in civic well-being and media credibility, illustrating that distribution matters as much as aggregate GDP per capita.</p>
+        `,
+        inquiry: "Is high economic inequality inevitable in developing market economies, or can fiscal transfers and public education decouple growth from inequality?"
+      }
+    ];
+
+    let currentChapter = 0;
+    let currentMetricIdx = 0;
+    let markersLayer = null;
+    let autoplayTimer = null;
+    let autoplayProgress = 0;
+    let currentBasemapIdx = 0;
+
+    // --- 3. BASEMAP PROVIDERS (100% Free, Public, Zero API Key Required) ---
+    const BASEMAPS = [
+      {
+        name: "Clean Light Canvas",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        attribution: "&copy; Esri, HERE, Garmin"
+      },
+      {
+        name: "Satellite Imagery",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attribution: "&copy; Esri, Maxar, Earthstar"
+      },
+      {
+        name: "OpenStreetMap Global",
+        url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution: "&copy; OpenStreetMap contributors"
+      },
+      {
+        name: "World Physical Relief",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}",
+        attribution: "&copy; Esri, US National Park Service"
+      },
+      {
+        name: "Midnight Dark Canvas",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        attribution: "&copy; Esri, DeLorme, NAVTEQ"
+      }
+    ];
+    let activeTileLayer = null;
+
+    // --- 4. MAP INITIALIZATION ---
+    const map = L.map('map', {
+      zoomControl: false,
+      attributionControl: false
+    }).setView([38.5, -96.5], 5);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    function setBasemap(idx) {
+      currentBasemapIdx = idx;
+      if (activeTileLayer) map.removeLayer(activeTileLayer);
+      const bm = BASEMAPS[idx];
+      activeTileLayer = L.tileLayer(bm.url, { maxZoom: 19 }).addTo(map);
+    }
+    setBasemap(0);
+
+    function cycleBasemap() {
+      const nextIdx = (currentBasemapIdx + 1) % BASEMAPS.length;
+      setBasemap(nextIdx);
+    }
+
+    // --- 5. COLOR GENERATOR ---
+    function getColor(val, min, max, palette) {
+      if (val === null || val === undefined) return "#94a3b8";
+      const norm = Math.max(0, Math.min(1, (val - min) / (max - min || 1)));
+      
+      if (palette === "Viridis") {
+        const r = Math.round(68 + norm * (253 - 68));
+        const g = Math.round(1 + norm * (231 - 1));
+        const b = Math.round(84 + norm * (37 - 84));
+        return `rgb(${r},${g},${b})`;
+      } else if (palette === "Purples") {
+        const r = Math.round(242 - norm * 150);
+        const g = Math.round(240 - norm * 190);
+        const b = Math.round(250 - norm * 50);
+        return `rgb(${r},${g},${b})`;
+      } else if (palette === "Greens") {
+        const r = Math.round(235 - norm * 200);
+        const g = Math.round(248 - norm * 120);
+        const b = Math.round(235 - norm * 200);
+        return `rgb(${r},${g},${b})`;
+      } else if (palette === "Teal") {
+        const r = Math.round(230 - norm * 210);
+        const g = Math.round(245 - norm * 110);
+        const b = Math.round(245 - norm * 90);
+        return `rgb(${r},${g},${b})`;
+      } else if (palette === "Reds") {
+        const r = Math.round(254 - norm * 50);
+        const g = Math.round(235 - norm * 180);
+        const b = Math.round(226 - norm * 180);
+        return `rgb(${r},${g},${b})`;
+      } else {
+        // Default UF Blues
+        const r = Math.round(237 - norm * 237);
+        const g = Math.round(242 - norm * 209);
+        const b = Math.round(255 - norm * 90);
+        return `rgb(${r},${g},${b})`;
+      }
+    }
+
+    // --- 6. RENDER CHAPTER ON MAP & SIDECAR ---
+    function renderChapter() {
+      const ch = CHAPTERS[currentChapter];
+      const mConfig = ch.metrics[currentMetricIdx];
+
+      // Update Chapter Buttons
+      document.querySelectorAll('.ch-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === currentChapter);
+      });
+
+      // Update Narrative Sidecar
+      document.getElementById('chapterTag').innerText = ch.tag;
+      document.getElementById('chapterTitle').innerText = ch.title;
+      document.getElementById('chapterSub').innerText = ch.sub;
+      document.getElementById('narrativeProse').innerHTML = ch.prose;
+      document.getElementById('inquiryDesc').innerText = ch.inquiry;
+
+      // Render Metric Pills
+      const pContainer = document.getElementById('metricPills');
+      pContainer.innerHTML = '';
+      ch.metrics.forEach((m, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `m-pill ${idx === currentMetricIdx ? 'active' : ''}`;
+        btn.innerText = m.label;
+        btn.onclick = () => {
+          currentMetricIdx = idx;
+          renderChapter();
+        };
+        pContainer.appendChild(btn);
+      });
+
+      // Camera Fly-To Animation
+      map.flyTo(ch.view, ch.zoom, { duration: 1.8, easeLinearity: 0.25 });
+
+      // Clear previous markers
+      if (markersLayer) map.removeLayer(markersLayer);
+      markersLayer = L.layerGroup().addTo(map);
+
+      // Extract values for KPI calculations
+      let values = [];
+      let itemsToRender = [];
+
+      if (!STORY_DATA) return;
+
+      if (ch.id === "us_elections") {
+        const us = STORY_DATA.us;
+        for (const [st, coords] of Object.entries(us.coords)) {
+          const stData = us.data[st];
+          const latestYear = Math.max(...Object.keys(stData).map(Number));
+          const val = stData[latestYear][mConfig.key];
+          values.push({ name: st, val: val, yr: latestYear });
+          itemsToRender.push({
+            name: st,
+            sub: `US State (${latestYear} Presidential/Midterm)`,
+            coords: coords,
+            val: val,
+            allData: stData[latestYear]
+          });
+        }
+      } else if (ch.id === "ess_europe") {
+        const ess = STORY_DATA.ess;
+        for (const [c, coords] of Object.entries(ess.coords)) {
+          const cData = ess.data[c];
+          if (!cData) continue;
+          const latestYear = Math.max(...Object.keys(cData).map(Number));
+          const val = cData[latestYear][mConfig.key];
+          values.push({ name: c, val: val, yr: latestYear });
+          itemsToRender.push({
+            name: c,
+            sub: `European Social Survey (Round ${latestYear})`,
+            coords: coords,
+            val: val,
+            allData: cData[latestYear]
+          });
+        }
+      } else if (ch.id === "vdem_global") {
+        const vdem = STORY_DATA.vdem;
+        for (const [code, coords] of Object.entries(vdem.centroids)) {
+          const item = vdem.data[code];
+          if (!item) continue;
+          const val = item[mConfig.key];
+          if (val !== undefined && val !== null) {
+            values.push({ name: item.name, val: val });
+            itemsToRender.push({
+              name: item.name,
+              sub: `V-Dem Global Democracy Lab (2024)`,
+              coords: coords,
+              val: val,
+              allData: item
+            });
+          }
+        }
+      } else if (ch.id === "inequality_global") {
+        const ineq = STORY_DATA.inequality;
+        for (const [reg, coords] of Object.entries(ineq.coords)) {
+          const regData = ineq.data[reg];
+          if (!regData) continue;
+          const latestYear = Math.max(...Object.keys(regData).map(Number));
+          const val = regData[latestYear][mConfig.key];
+          values.push({ name: reg, val: val, yr: latestYear });
+          itemsToRender.push({
+            name: reg,
+            sub: `Global Development Index (${latestYear})`,
+            coords: coords,
+            val: val,
+            allData: regData[latestYear]
+          });
+        }
+      }
+
+      // Compute KPIs
+      if (values.length > 0) {
+        values.sort((a, b) => b.val - a.val);
+        const top = values[0];
+        const btm = values[values.length - 1];
+        const avg = (values.reduce((s, v) => s + v.val, 0) / values.length).toFixed(1);
+
+        document.getElementById('kpiDeck').innerHTML = `
+          <div class="kpi-card">
+            <div class="kpi-val">${top.val}${mConfig.unit}</div>
+            <div class="kpi-lbl">Highest: ${top.name.substring(0, 10)}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">${avg}${mConfig.unit}</div>
+            <div class="kpi-lbl">Group Average</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-val">${btm.val}${mConfig.unit}</div>
+            <div class="kpi-lbl">Lowest: ${btm.name.substring(0, 10)}</div>
+          </div>
+        `;
+
+        // Update Legend
+        document.getElementById('legendTitle').innerText = mConfig.label;
+        document.getElementById('legendMin').innerText = `Min: ${btm.val}${mConfig.unit}`;
+        document.getElementById('legendMid').innerText = `Avg: ${avg}${mConfig.unit}`;
+        document.getElementById('legendMax').innerText = `Max: ${top.val}${mConfig.unit}`;
+        
+        const cMin = getColor(btm.val, mConfig.min, mConfig.max, mConfig.palette);
+        const cMid = getColor(Number(avg), mConfig.min, mConfig.max, mConfig.palette);
+        const cMax = getColor(top.val, mConfig.min, mConfig.max, mConfig.palette);
+        document.getElementById('legendBar').style.background = `linear-gradient(to right, ${cMin}, ${cMid}, ${cMax})`;
+      }
+
+      // Render Leaflet Markers
+      itemsToRender.forEach(item => {
+        const color = getColor(item.val, mConfig.min, mConfig.max, mConfig.palette);
+        const radius = Math.max(12, Math.min(26, 14 + ((item.val - mConfig.min) / (mConfig.max - mConfig.min || 1)) * 14));
+
+        const circleMarker = L.circleMarker(item.coords, {
+          radius: radius,
+          fillColor: color,
+          color: "#ffffff",
+          weight: 2.5,
+          opacity: 0.95,
+          fillOpacity: 0.85
+        });
+
+        // Hover Tooltip
+        circleMarker.bindTooltip(`
+          <div style="font-weight: 800; font-size: 13px; color: #0a101d;">${item.name}</div>
+          <div style="font-size: 11px; color: #475467;">${mConfig.label}: <strong>${item.val}${mConfig.unit}</strong></div>
+        `, { direction: 'top', offset: [0, -radius] });
+
+        // Click Popup Card
+        let statsHtml = '';
+        for (const [k, v] of Object.entries(item.allData)) {
+          if (typeof v === 'number') {
+            statsHtml += `
+              <div class="popup-stat-item">
+                <div class="popup-stat-val">${v}</div>
+                <div class="popup-stat-lbl">${k.replace('_', ' ')}</div>
+              </div>
+            `;
+          }
+        }
+
+        circleMarker.bindPopup(`
+          <div class="popup-box">
+            <div class="popup-title">${item.name}</div>
+            <div class="popup-sub">${item.sub}</div>
+            <div class="popup-stat-grid">${statsHtml}</div>
+          </div>
+        `);
+
+        markersLayer.addLayer(circleMarker);
+      });
+    }
+
+    // --- 7. NAVIGATION & CONTROLS ---
+    function switchChapter(idx) {
+      currentChapter = idx;
+      currentMetricIdx = 0;
+      resetAutoplayTimer();
+      renderChapter();
+    }
+
+    function nextChapter() {
+      currentChapter = (currentChapter + 1) % CHAPTERS.length;
+      currentMetricIdx = 0;
+      resetAutoplayTimer();
+      renderChapter();
+    }
+
+    function prevChapter() {
+      currentChapter = (currentChapter - 1 + CHAPTERS.length) % CHAPTERS.length;
+      currentMetricIdx = 0;
+      resetAutoplayTimer();
+      renderChapter();
+    }
+
+    // Keyboard Arrow Navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === "ArrowRight") nextChapter();
+      if (e.key === "ArrowLeft") prevChapter();
+    });
+
+    // Sidecar Drawer Toggle
+    function toggleDrawer() {
+      const sidecar = document.getElementById('sidecar');
+      const toggle = document.querySelector('.drawer-toggle');
+      sidecar.classList.toggle('collapsed');
+      toggle.innerText = sidecar.classList.contains('collapsed') ? '▶' : '◀';
+    }
+
+    // Fullscreen Toggle
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Autoplay Presentation Tour
+    function toggleAutoplay() {
+      const btn = document.getElementById('autoplayBtn');
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+        btn.innerText = "▶ Autoplay Tour";
+        btn.classList.remove('orange');
+        document.getElementById('progressBar').style.width = '0%';
+      } else {
+        btn.innerText = "⏸ Pause Tour";
+        btn.classList.add('orange');
+        autoplayProgress = 0;
+        autoplayTimer = setInterval(() => {
+          autoplayProgress += 1;
+          document.getElementById('progressBar').style.width = `${(autoplayProgress / 80) * 100}%`;
+          if (autoplayProgress >= 80) {
+            autoplayProgress = 0;
+            nextChapter();
+          }
+        }, 100);
+      }
+    }
+
+    function resetAutoplayTimer() {
+      if (autoplayTimer) {
+        autoplayProgress = 0;
+        document.getElementById('progressBar').style.width = '0%';
+      }
+    }
+
+    // --- 8. LOAD DATA & BOOTSTRAP ---
+    fetch('/storymap_data.json')
+      .then(res => res.json())
+      .then(data => {
+        STORY_DATA = data;
+        renderChapter();
+      })
+      .catch(err => {
+        console.warn("Local fetch fallback: attempting inline bootstrap...", err);
+        // Fallback for standalone preview
+        fetch('storymap_data.json')
+          .then(r => r.json())
+          .then(d => {
+            STORY_DATA = d;
+            renderChapter();
+          });
+      });
+  </script>
+</body>
+</html>
+
